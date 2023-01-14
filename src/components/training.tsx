@@ -2,12 +2,14 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { getAllWords, wordPair } from "./wordsList";
 
-const editPair = async (pair: wordPair) => {
-  fetch(`http://127.0.0.1:8090/api/collections/words/records/${pair.id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(pair),
-  });
+const editPair = async (pair?: wordPair) => {
+  if (pair) {
+    fetch(`http://127.0.0.1:8090/api/collections/words/records/${pair.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pair),
+    });
+  }
 };
 
 const Training: React.FC = () => {
@@ -15,7 +17,9 @@ const Training: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [items, setItems] = useState<Array<wordPair>>([]);
   const [randomItems, setRandomItems] = useState<Array<wordPair>>([]);
-  const [randomPositions, setRandomPositions] = useState<Array<number>>([]);
+  const [randomPositions, setRandomPositions] = useState<Array<number>>([
+    0, 1, 2, 3,
+  ]);
   const [correctAnswersCounter, setCorrectAnswersCounter] = useState<number>(0);
   const [wrongAnswersCounter, setWrongAnswersCounter] = useState<number>(0);
   const [answerStyles, setAnswerStyles] = useState<Array<string>>([
@@ -48,14 +52,14 @@ const Training: React.FC = () => {
       const setColor = (color: string) => {
         setAnswerStyles((styles) => {
           return styles.map((e, key) => {
-            console.log(key, pos, randomPositions[0]);
+            //console.log(key, pos, randomPositions[0]);
             let st =
               randomPositions[key] == 0 && key !== pos
                 ? `rounded-lg transition duration-500 bg-green-500`
                 : key == pos //TODO работает ненадежно (иногда под курсором белой становится, хотя строка правильная)
                 ? `rounded-lg transition duration-500 bg-${color}-100`
                 : e;
-            console.log(st);
+            //console.log(st);
             return st;
           });
         });
@@ -86,7 +90,7 @@ const Training: React.FC = () => {
 
         setRandomItems(udatedRandomItems);
 
-        editPair(udatedRandomItems[randomPositions[pos]]);
+        editPair(udatedRandomItems[randomPositions[pos] as number]);
 
         setColor("green");
       } else {
@@ -102,7 +106,7 @@ const Training: React.FC = () => {
 
         setRandomItems(udatedRandomItems);
 
-        editPair(udatedRandomItems[randomPositions[pos]]);
+        editPair(udatedRandomItems[randomPositions[pos] as number]);
 
         setColor("red");
       }
@@ -143,7 +147,9 @@ const Training: React.FC = () => {
                 checkAnswer(key);
               }}
             >
-              <p className="mx-2">{randomItems[randomPositions[key]]?.rus}</p>
+              <p className="mx-2">
+                {randomItems[randomPositions[key] as number]?.rus}
+              </p>
             </div>
           ))}
         </div>
