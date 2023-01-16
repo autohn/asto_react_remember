@@ -18,6 +18,9 @@ import {
   switchMap,
   interval,
   map,
+  combineLatest,
+  Observable,
+  catchError,
 } from "rxjs";
 
 export interface wordPair {
@@ -31,57 +34,53 @@ export interface wordPair {
 type newWrdPair = Pick<wordPair, "eng" | "rus">;
 
 export const getAllWords = async (): Promise<wordPair[]> => {
-  let items: any;
-  const firstItems = await (
-    await fetch(
-      "http://127.0.0.1:8090/api/collections/words/records/?perPage=500"
-    )
-  ).json();
+  try {
+    let items: any;
+    const firstItems = await (
+      await fetch(
+        "http://127.0.0.1:8090/api/collections/words/records/?perPage=500"
+      )
+    ).json();
 
-  items = firstItems.items;
+    items = firstItems.items;
 
-  if (firstItems.totalPages > 1) {
-    let additionalItems = await Promise.all(
-      [...Array(firstItems.totalPages - 1)].map(async (e, key) => {
-        return await (
-          await fetch(
-            `http://127.0.0.1:8090/api/collections/words/records/?perPage=500&page=${
-              key + 2
-            }`
-          )
-        ).json();
-      })
-    );
-    additionalItems.forEach((e) => {
-      //console.log(e);
-      items = items.concat(e.items);
-    });
+    if (firstItems.totalPages > 1) {
+      let additionalItems = await Promise.all(
+        [...Array(firstItems.totalPages - 1)].map(async (e, key) => {
+          return await (
+            await fetch(
+              `http://127.0.0.1:8090/api/collections/words/records/?perPage=500&page=${
+                key + 2
+              }`
+            )
+          ).json();
+        })
+      );
+      additionalItems.forEach((e) => {
+        //console.log(e);
+        items = items.concat(e.items);
+      });
+    }
+
+    console.log("загружено ", items.length, " слов");
+    return Promise.resolve(items);
+  } catch (error) {
+    //let e = new Error("my error :D");
+    //Do some stuff......
+    /*throw e;
+    console.log(error); */
+    return Promise.reject(error);
   }
-
-  console.log("загружено ", items.length, " слов");
-
   /*   await setTimeout(() => {
     console.log("Delayed for 1 second.");
   }, 3000); */
-
-  return items;
 };
 
-/* let seaarchSubject = new BehaviorSubject<string>("");
-let bh = new BehaviorSubject<wordPair[]>([]);
-let data = await getAllWords();
-bh.next(data); */
-
-/*
-let searchResult$ = seaarchSubject.pipe(
-  //filter((val) => val.length > 1),
-  shareReplay(1, 3000),
-  debounceTime(400),
-  distinctUntilChanged(),
-  mergeMap((val) => from(getAllWords()))
-); */
-
-let sub = new BehaviorSubject<Array<wordPair>>(await getAllWords());
+//let allWords = await getAllWords().catch((e) => console.log(e));
+let obs = from(getAllWords());
+let sub = new BehaviorSubject<Array<wordPair>>([]);
+obs.subscribe(sub);
+let srch = new BehaviorSubject<string>("");
 /* let obs = from(getAllWords());
 
 sub.subscribe(obs);
@@ -91,60 +90,54 @@ sub.next([]); */
 const WordsList: React.FC = () => {
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState<Array<wordPair>>([]);
   const [eng, setEng] = useState<string>("");
   const [rus, setRus] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File>();
   const [search, setSearch] = useState<string>("");
-  //const [items2, setItems2] = useState<Array<wordPair>>([]);
 
-  /*   const itemss = useMemo(() => getAllWords(), []);
-
-  const filterWords = async (filter: string) => {
-    return (await itemss).filter(
-      (item: wordPair) => item.eng.includes(filter) || item.rus.includes(filter)
-    );
-  };
- */
-  //console.log(filterWords("chug"));
-
-  /*   const [items2, setA] = useObservableState<Array<wordPair>>(
-    (a$) =>
-      a$.pipe(
-        //filter((val) => val.length > 1),
-        //shareReplay(1, 3000),
-        //debounceTime(400),
-        distinctUntilChanged(),
-        switchMap((val) => getAllWords())
-      ),
-    []
-  ); */
-
-  /*  const [items2, setItems2] = useObservableState<wordPair[], wordPair[]>(
-    ini,
-    []
-  );
- */
-  //const subscription = useSubscription(obs, sub);
-  //console.log(items2);
   const handleSearch = async (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const newValue = e.target.value;
     setSearch(newValue);
-    console.log("handler");
-    //seaarchSubject.next(newValue);
-    sub.next([
-      { eng: "a", rus: "a", id: "a", correctAnswers: 1, wrongAnswers: 1 },
-    ]);
+    srch.next(newValue);
   };
 
-  const items2 = useObservableState(sub, []);
-  /*   const items3 = useObservableState(
-    sub.pipe(map((pokemon) => pokemon.filter((p) => p.eng.includes("chu")))),
-    []
+  /*  const obs = useObservable(
+    (a) =>
+      sub.pipe(
+        map((pokemon) =>
+          pokemon.filter(
+            (p) => p.eng.includes(search) || p.rus.includes(search)
+          )
+        )
+      ),
+    [getAllWords, search]
   ); */
-  //const [list, setList] = useState<typeof listi>(listi);
+  const [items2] = useObservableState(
+    () =>
+      combineLatest([sub, srch]).pipe(
+        map(([wp, s]) =>
+          wp.filter((p) => p.eng.includes(s) || p.rus.includes(s))
+        )
+        //filter((val) => val.length > 1),
+        //shareReplay(1, 3000),
+        //debounceTime(400),
+        //distinctUntilChanged(),
+        //mergeMap((val) => from(getAllWords()))
+      ),
+    /*         .pipe(
+          catchError((e) => {
+            setIsLoading(false);
+            setError(e);
+            throw e;
+          })
+        ) */ []
+  );
+
   useEffect(() => {
+    /*     if (items2.length > 0) {
+      setIsLoading(false);
+    } */
     /* getAllWords()
       .then((e) => {
         setItems(e);
@@ -159,6 +152,8 @@ const WordsList: React.FC = () => {
         }
       });*/
   }, []);
+
+  //добавление зависимости items2.length > 0 все ломает
 
   const addNewPair = async ({ eng, rus }: newWrdPair) => {
     return fetch("http://127.0.0.1:8090/api/collections/words/records/", {
@@ -186,8 +181,8 @@ const WordsList: React.FC = () => {
       method: "DELETE",
     });
 
-    setItems(
-      items.filter((e) => {
+    sub.next(
+      sub.getValue().filter((e) => {
         return e.id !== id;
       })
     );
@@ -196,25 +191,25 @@ const WordsList: React.FC = () => {
   const addFromFile = async () => {
     if (selectedFile?.type == "application/json") {
       JSON.parse(await selectedFile.text()).list.forEach((e: newWrdPair) =>
-        addNewPair({ eng: e.eng, rus: e.rus }).then((data) =>
-          setItems((e) => e.concat([data]))
-        )
+        addNewPair({ eng: e.eng, rus: e.rus }).then((data) => {
+          sub.next(sub.getValue().concat([data]));
+        })
       );
     }
   };
 
   const deleteAll = async () => {
-    items.forEach((e) => {
+    items2.forEach((e) => {
       deletePair(e.id);
     });
-    setItems([]);
+    sub.next([]);
   };
 
   const handleAddPair = async (e: FormEvent) => {
     e.preventDefault();
     addNewPair({ rus, eng })
       .then((result: wordPair) => {
-        setItems(items.concat([result]));
+        sub.next(sub.getValue().concat([result]));
       })
       .catch((error) => {
         console.log(error);
@@ -299,7 +294,7 @@ const WordsList: React.FC = () => {
       >
         Delete all
       </button>
-      {error?.message}
+      {error && <div>{error.message}</div>}
       {isLoading && <div>Loading...</div>}
       <>
         {items2?.map((word: wordPair, key: number) => (
