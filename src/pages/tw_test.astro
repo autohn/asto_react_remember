@@ -1,0 +1,33 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+import Tw_test from "../components/tw_test";
+---
+
+<Layout title="Welcome to Astro.">
+  <main>
+    <Tw_test client:load />
+
+    <button type="submit" id="text" class=""> Delete all</button>
+  </main>
+
+  <style>
+    #text {
+      animation: 3s multicolor;
+    }
+    @keyframes multicolor {
+      0% {
+        color: #000;
+      }
+      33% {
+        color: #ff0000;
+      }
+      66% {
+        color: #0000ff;
+      }
+      100% {
+        color: #fff;
+      }
+    }
+  </style>
+</Layout>

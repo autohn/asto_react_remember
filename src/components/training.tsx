@@ -1,22 +1,51 @@
 import type React from "react";
 import { useState, useEffect } from "react";
-import type { wordPair } from "./wordsList";
-import { getAllWords } from "./wordsList";
+import type { wordPair } from "../nanoStore";
+import { getAllWords } from "../nanoStore";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+
+type newWrdPair = Pick<wordPair, "eng" | "rus">;
+
+const cacheTime = 1000 * 60 * 60 * 24 * 2;
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      cacheTime,
+      suspense: true,
+    },
+  },
+});
+
+const Training: React.FC = () => {
+  return (
+    <>
+      <QueryClientProvider client={queryClient}>
+        <TrainingC />
+      </QueryClientProvider>
+    </>
+  );
+};
 
 const editPair = async (pair?: wordPair) => {
   if (pair) {
     fetch(`http://127.0.0.1:8090/api/collections/words/records/${pair.id}`, {
       method: "PATCH",
+
       headers: { "Content-Type": "application/json" },
+
       body: JSON.stringify(pair),
     });
   }
 };
 
-const Training: React.FC = () => {
-  const [error, setError] = useState<Error>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState<Array<wordPair>>([]);
+const TrainingC: React.FC = () => {
   const [randomItems, setRandomItems] = useState<Array<wordPair>>([]);
   const [randomPositions, setRandomPositions] = useState<Array<number>>([
     0, 1, 2, 3,
@@ -29,27 +58,44 @@ const Training: React.FC = () => {
     "rounded-lg bg-blue-100",
     "rounded-lg bg-blue-100",
   ]);
-  const [uiBloked, setUiBloked] = useState<boolean>(false);
 
-  const randomize = (items: Array<wordPair>) => {
+  const [uiBloked, setUiBloked] = useState<boolean>(false);
+  const queryClient = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["words"],
+    queryFn: getAllWords,
+    suspense: true,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const editPairMutation = useMutation({
+    mutationFn: editPair,
+    onSuccess: () => {}, //тут не делаем invalidate чтобы не дергать api, по идее не должно быть проблем потому что для обновления количества правильных ответов для слова используем randomitems
+  });
+
+  const randomize = () => {
+    //в случае с suspense не требуется  if (typeof data !== "undefined"), срабатывает только после окончания fetch
     setRandomItems(
-      [...items].sort(() => {
+      [...data!].sort(() => {
         return 0.5 - Math.random();
       })
     );
 
     setRandomPositions(
       //TODO как-то красивее?
+
       [0, 1, 2, 3].sort(() => {
         return 0.5 - Math.random();
       })
     );
-    setUiBloked(false);
   };
 
   const checkAnswer = (pos: number) => {
     if (!uiBloked) {
       setUiBloked(true);
+
       const setColor = (color: string) => {
         setAnswerStyles((styles) => {
           return styles.map((e, key) => {
@@ -60,20 +106,22 @@ const Training: React.FC = () => {
                 : key == pos //TODO работает ненадежно (иногда под курсором белой становится, хотя строка правильная)
                 ? `rounded-lg transition duration-500 bg-${color}-100`
                 : e;
-            //console.log(st);
             return st;
           });
         });
 
         //e.currentTarget.className = "transition duration-2000 bg-blue-100";
+
         setTimeout(() => {
           setAnswerStyles((styles) => {
             return styles.map((e, key) => {
               return "rounded-lg transition duration-500 bg-blue-100";
             });
           });
+
           setTimeout(() => {
-            randomize(items);
+            randomize();
+            setUiBloked(false);
           }, 500);
         }, 500);
       };
@@ -91,7 +139,9 @@ const Training: React.FC = () => {
 
         setRandomItems(udatedRandomItems);
 
-        editPair(udatedRandomItems[randomPositions[pos] as number]);
+        editPairMutation.mutate(
+          udatedRandomItems[randomPositions[pos] as number]
+        );
 
         setColor("green");
       } else {
@@ -107,7 +157,9 @@ const Training: React.FC = () => {
 
         setRandomItems(udatedRandomItems);
 
-        editPair(udatedRandomItems[randomPositions[pos] as number]);
+        editPairMutation.mutate(
+          udatedRandomItems[randomPositions[pos] as number]
+        );
 
         setColor("red");
       }
@@ -115,30 +167,16 @@ const Training: React.FC = () => {
   };
 
   useEffect(() => {
-    getAllWords()
-      .then((e) => {
-        setItems(e);
-        randomize(e);
-        setIsLoading(false);
-      })
-      .catch((e) => {
-        setIsLoading(false);
-        if (typeof e === "string") {
-          console.log(e.toUpperCase());
-        } else if (e instanceof Error) {
-          setError(e);
-        }
-      });
+    randomize();
   }, []);
 
   return (
     <>
       <div>
-        {error?.message}
-        {isLoading && <div>Loading...</div>}
         <div className="rounded-lg bg-orange-100 text-center my-4">
           {randomItems[0]?.eng}
         </div>
+
         <div className="grid grid-cols-2 gap-4">
           {[...Array(4)].map((x, key) => (
             <div
@@ -155,6 +193,7 @@ const Training: React.FC = () => {
           ))}
         </div>
       </div>
+
       <div className="my-4">
         Correct: {correctAnswersCounter} / Wrong: {wrongAnswersCounter}
       </div>

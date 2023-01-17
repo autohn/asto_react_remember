@@ -1,159 +1,121 @@
 import type React from "react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useContext, createContext } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import type { wordPair } from "../nanoStore";
+import { getAllWords } from "../nanoStore";
+import { useStore } from "@nanostores/react";
 import {
   useQuery,
   useMutation,
   useQueryClient,
   QueryClient,
   QueryClientProvider,
-} from "react-query";
-
-export const getAllWords = async (): Promise<wordPair[]> => {
-  try {
-    let items: any;
-    const firstItems = await (
-      await fetch(
-        "http://127.0.0.1:8090/api/collections/words/records/?perPage=500"
-      )
-    ).json();
-
-    items = firstItems.items;
-
-    if (firstItems.totalPages > 1) {
-      let additionalItems = await Promise.all(
-        [...Array(firstItems.totalPages - 1)].map(async (e, key) => {
-          return await (
-            await fetch(
-              `http://127.0.0.1:8090/api/collections/words/records/?perPage=500&page=${
-                key + 2
-              }`
-            )
-          ).json();
-        })
-      );
-      additionalItems.forEach((e) => {
-        //console.log(e);
-        items = items.concat(e.items);
-      });
-    }
-
-    console.log("загружено ", items.length, " слов");
-    return Promise.resolve(items);
-  } catch (error) {
-    return Promise.reject(error);
-  }
-  /*   await setTimeout(() => {
-    console.log("Delayed for 1 second.");
-  }, 3000); */
-};
-
-export interface wordPair {
-  eng: string;
-  rus: string;
-  id: string;
-  correctAnswers: number;
-  wrongAnswers: number;
-}
+} from "@tanstack/react-query";
 
 type newWrdPair = Pick<wordPair, "eng" | "rus">;
 
+const cacheTime = 1000 * 60 * 60 * 24 * 2;
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      cacheTime,
+      suspense: true,
+    },
+  },
+});
+
 const WordsList: React.FC = () => {
-  const [error, setError] = useState<Error>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState<Array<wordPair>>([]);
+  return (
+    <>
+      <QueryClientProvider client={queryClient}>
+        <WordsListC />
+      </QueryClientProvider>
+    </>
+  );
+};
+
+const addNewPair = async ({ eng, rus }: newWrdPair) => {
+  return fetch("http://127.0.0.1:8090/api/collections/words/records/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      eng: eng,
+      rus: rus,
+      correctAnswers: 0,
+      wrongAnswers: 0,
+    }),
+  });
+};
+
+const deletePair = async (id: string) => {
+  return fetch(`http://127.0.0.1:8090/api/collections/words/records/${id}`, {
+    method: "DELETE",
+  });
+};
+
+export const WordsListC: React.FC = () => {
+  //const [error, setError] = useState<Error>();
+  //const [isLoading, setIsLoading] = useState(true);
+  //const [items, setItems] = useState<Array<wordPair>>([]);
   /*   const { wordsList, setWordsList, fetchWords } = useStore();
   const [items, setItems] = [wordsList, setWordsList]; */
   const [eng, setEng] = useState<string>("");
   const [rus, setRus] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File>();
   const [search, setSearch] = useState<string>("");
+  const queryClient = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["words"],
+    queryFn: getAllWords,
+    suspense: true,
+  });
 
-  const handleSearch = async (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const newValue = e.target.value;
-    setSearch(newValue);
-  };
-
-  useEffect(() => {
-    getAllWords()
-      .then((e) => {
-        setItems(e);
-        setIsLoading(false);
-      })
-      .catch((e: any) => {
-        setIsLoading(false);
-        if (typeof e === "string") {
-          console.log(e.toUpperCase());
-        } else if (e instanceof Error) {
-          setError(e);
-        }
-      });
-  }, []);
-
-  const addNewPair = async ({ eng, rus }: newWrdPair) => {
-    return fetch("http://127.0.0.1:8090/api/collections/words/records/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        eng: eng,
-        rus: rus,
-        correctAnswers: 0,
-        wrongAnswers: 0,
-      }),
-    }).then((response) => {
-      if (!response.ok) {
-        console.log("err");
-        throw Error(response.statusText);
-      } else {
-        return response.json();
-      }
-    });
-  };
+  const addNewPairMutation = useMutation({
+    mutationFn: addNewPair,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["words"] });
+    },
+  });
 
   //[].forEach((e) => addNewPair(e));
-  const deletePair = async (id: string) => {
-    fetch(`http://127.0.0.1:8090/api/collections/words/records/${id}`, {
-      method: "DELETE",
-    });
 
-    setItems(
-      items.filter((e) => {
-        return e.id !== id;
-      })
-    );
+  const deletePairMutation = useMutation({
+    mutationFn: deletePair,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["words"] });
+    },
+  });
+
+  const deleteAll = async () => {
+    //TODO оптимизировать массовые действия
+    data?.forEach((e) => {
+      deletePairMutation.mutate(e.id);
+    });
   };
 
   const addFromFile = async () => {
     if (selectedFile?.type == "application/json") {
       JSON.parse(await selectedFile.text()).list.forEach((e: newWrdPair) =>
-        addNewPair({ eng: e.eng, rus: e.rus }).then(
-          (data) => console.log(data)
-          //setItems((p) => p.concat([data]))
-        )
+        addNewPairMutation.mutate({ eng: e.eng, rus: e.rus })
       );
     }
   };
 
-  const deleteAll = async () => {
-    items.forEach((e) => {
-      deletePair(e.id);
-    });
-    setItems([]);
-  };
+  useEffect(() => {}, []);
 
   const handleAddPair = async (e: FormEvent) => {
     e.preventDefault();
-    addNewPair({ rus, eng })
-      .then((result: wordPair) => {
-        setItems(items.concat([result]));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    addNewPairMutation.mutate({ rus, eng });
+
     setEng("");
     setRus("");
     //console.log(Object.keys(items[0]));
+  };
+
+  const handleSearch = async (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const newValue = e.target.value;
+    setSearch(newValue);
   };
 
   return (
@@ -231,16 +193,16 @@ const WordsList: React.FC = () => {
       >
         Delete all
       </button>
-      {error && <div>{error.message}</div>}
-      {isLoading && <div>Loading...</div>}
+      {/*       {status === "error" && <div>{status}</div>}
+      {status === "loading" && <div>Loading...</div>} */}
       <>
-        {items
-          .filter((i) => i.eng.includes(search) || i.rus.includes(search))
+        {data
+          ?.filter((i) => i.eng.includes(search) || i.rus.includes(search))
           ?.map((word: wordPair, key: number) => (
             <p
               className="hover:bg-red-100"
               onClick={() => {
-                deletePair(word.id);
+                deletePairMutation.mutate(word.id);
               }}
               key={word.id}
             >
