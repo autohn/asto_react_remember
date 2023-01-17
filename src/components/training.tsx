@@ -1,6 +1,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
-import { getAllWords, wordPair } from "./wordsList";
+import type { wordPair } from "./wordsList";
+import { getAllWords } from "./wordsList";
 
 const editPair = async (pair?: wordPair) => {
   if (pair) {
