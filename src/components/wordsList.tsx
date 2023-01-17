@@ -2,36 +2,12 @@ import type React from "react";
 import { useState, useEffect, useMemo } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import {
-  useObservable,
-  useObservableState,
-  useSubscription,
-} from "observable-hooks";
-import {
-  BehaviorSubject,
-  from,
-  distinctUntilChanged,
-  filter,
-  delay,
-  debounceTime,
-  mergeMap,
-  shareReplay,
-  switchMap,
-  interval,
-  map,
-  combineLatest,
-  Observable,
-  catchError,
-} from "rxjs";
-
-export interface wordPair {
-  eng: string;
-  rus: string;
-  id: string;
-  correctAnswers: number;
-  wrongAnswers: number;
-}
-
-type newWrdPair = Pick<wordPair, "eng" | "rus">;
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from "react-query";
 
 export const getAllWords = async (): Promise<wordPair[]> => {
   try {
@@ -65,10 +41,6 @@ export const getAllWords = async (): Promise<wordPair[]> => {
     console.log("загружено ", items.length, " слов");
     return Promise.resolve(items);
   } catch (error) {
-    //let e = new Error("my error :D");
-    //Do some stuff......
-    /*throw e;
-    console.log(error); */
     return Promise.reject(error);
   }
   /*   await setTimeout(() => {
@@ -76,20 +48,22 @@ export const getAllWords = async (): Promise<wordPair[]> => {
   }, 3000); */
 };
 
-//let allWords = await getAllWords().catch((e) => console.log(e));
-let obs = from(getAllWords());
-let sub = new BehaviorSubject<Array<wordPair>>([]);
-obs.subscribe(sub);
-let srch = new BehaviorSubject<string>("");
-/* let obs = from(getAllWords());
+export interface wordPair {
+  eng: string;
+  rus: string;
+  id: string;
+  correctAnswers: number;
+  wrongAnswers: number;
+}
 
-sub.subscribe(obs);
-
-sub.next([]); */
+type newWrdPair = Pick<wordPair, "eng" | "rus">;
 
 const WordsList: React.FC = () => {
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(true);
+  const [items, setItems] = useState<Array<wordPair>>([]);
+  /*   const { wordsList, setWordsList, fetchWords } = useStore();
+  const [items, setItems] = [wordsList, setWordsList]; */
   const [eng, setEng] = useState<string>("");
   const [rus, setRus] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File>();
@@ -99,61 +73,23 @@ const WordsList: React.FC = () => {
     e.preventDefault();
     const newValue = e.target.value;
     setSearch(newValue);
-    srch.next(newValue);
   };
 
-  /*  const obs = useObservable(
-    (a) =>
-      sub.pipe(
-        map((pokemon) =>
-          pokemon.filter(
-            (p) => p.eng.includes(search) || p.rus.includes(search)
-          )
-        )
-      ),
-    [getAllWords, search]
-  ); */
-  const [items2] = useObservableState(
-    () =>
-      combineLatest([sub, srch]).pipe(
-        map(([wp, s]) =>
-          wp.filter((p) => p.eng.includes(s) || p.rus.includes(s))
-        )
-        //filter((val) => val.length > 1),
-        //shareReplay(1, 3000),
-        //debounceTime(400),
-        //distinctUntilChanged(),
-        //mergeMap((val) => from(getAllWords()))
-      ),
-    /*         .pipe(
-          catchError((e) => {
-            setIsLoading(false);
-            setError(e);
-            throw e;
-          })
-        ) */ []
-  );
-
   useEffect(() => {
-    /*     if (items2.length > 0) {
-      setIsLoading(false);
-    } */
-    /* getAllWords()
+    getAllWords()
       .then((e) => {
         setItems(e);
         setIsLoading(false);
       })
-      .catch((e) => {
+      .catch((e: any) => {
         setIsLoading(false);
         if (typeof e === "string") {
           console.log(e.toUpperCase());
         } else if (e instanceof Error) {
           setError(e);
         }
-      });*/
+      });
   }, []);
-
-  //добавление зависимости items2.length > 0 все ломает
 
   const addNewPair = async ({ eng, rus }: newWrdPair) => {
     return fetch("http://127.0.0.1:8090/api/collections/words/records/", {
@@ -181,8 +117,8 @@ const WordsList: React.FC = () => {
       method: "DELETE",
     });
 
-    sub.next(
-      sub.getValue().filter((e) => {
+    setItems(
+      items.filter((e) => {
         return e.id !== id;
       })
     );
@@ -191,25 +127,26 @@ const WordsList: React.FC = () => {
   const addFromFile = async () => {
     if (selectedFile?.type == "application/json") {
       JSON.parse(await selectedFile.text()).list.forEach((e: newWrdPair) =>
-        addNewPair({ eng: e.eng, rus: e.rus }).then((data) => {
-          sub.next(sub.getValue().concat([data]));
-        })
+        addNewPair({ eng: e.eng, rus: e.rus }).then(
+          (data) => console.log(data)
+          //setItems((p) => p.concat([data]))
+        )
       );
     }
   };
 
   const deleteAll = async () => {
-    items2.forEach((e) => {
+    items.forEach((e) => {
       deletePair(e.id);
     });
-    sub.next([]);
+    setItems([]);
   };
 
   const handleAddPair = async (e: FormEvent) => {
     e.preventDefault();
     addNewPair({ rus, eng })
       .then((result: wordPair) => {
-        sub.next(sub.getValue().concat([result]));
+        setItems(items.concat([result]));
       })
       .catch((error) => {
         console.log(error);
@@ -297,32 +234,20 @@ const WordsList: React.FC = () => {
       {error && <div>{error.message}</div>}
       {isLoading && <div>Loading...</div>}
       <>
-        {items2?.map((word: wordPair, key: number) => (
-          <p
-            className="hover:bg-red-100"
-            onClick={() => {
-              deletePair(word.id);
-            }}
-            key={word.id}
-          >
-            {word.eng} {word.rus}
-          </p>
-        ))}
+        {items
+          .filter((i) => i.eng.includes(search) || i.rus.includes(search))
+          ?.map((word: wordPair, key: number) => (
+            <p
+              className="hover:bg-red-100"
+              onClick={() => {
+                deletePair(word.id);
+              }}
+              key={word.id}
+            >
+              {word.eng} {word.rus}
+            </p>
+          ))}
       </>
-
-      {/*       <>
-        {items2?.map((word: wordPair, key: number) => (
-          <p
-            className="hover:bg-red-100"
-            onClick={() => {
-              deletePair(word.id);
-            }}
-            key={word.id}
-          >
-            {word.eng} {word.rus}
-          </p>
-        ))}
-      </> */}
     </>
   );
 };
