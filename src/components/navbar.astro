@@ -1,30 +1,31 @@
 ---
+const pathname = new URL(Astro.request.url).pathname;
+const currentPath = pathname.slice(1);
 ---
 
 <nav
-  class="px-2 bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700"
+  class="fixed top-0 w-full px-2 bg-gradient-to-r from-darkPC via-brightPC to-supertbrightPC border-gray-200"
 >
   <div class="container flex flex-wrap items-center justify-between mx-auto">
     <a href="#" class="flex items-center">
-      <img
-        src="https://img.icons8.com/office/512/logo.png"
-        class="h-6 mr-3 sm:h-10"
-        alt="Training Logo"
-      />
+      <img src="/logo.ico" class="h-10 mr-3" alt="Training Logo" />
       <span
-        class="self-center text-xl font-semibold whitespace-nowrap dark:text-white"
+        class="text-shadow shadow-starC self-center text-xl font-semibold whitespace-nowrap text-starC"
         >Training</span
       >
     </a>
 
-    <div class="hidden w-full md:block md:w-auto">
+    <div class="block md:w-auto">
       <ul
-        class="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
+        class="flex p-4 mt-4 rounded-lg flex-row space-x-8 mt-0 text-sm font-medium mborder-0"
       >
         <li>
           <a
             href="/"
-            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+            class={(currentPath === ""
+              ? "text-starC text-shadow shadow-starC "
+              : "text-darkstarC ") +
+              "block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0"}
             >Home</a
           >
         </li>
@@ -32,7 +33,10 @@
         <li>
           <a
             href="/training"
-            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+            class={(currentPath === "training"
+              ? "text-starC text-shadow shadow-starC "
+              : "text-darkstarC ") +
+              "block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0"}
             >Training</a
           >
         </li>

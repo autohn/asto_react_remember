@@ -7,11 +7,12 @@ export const tw_test: React.FC = () => {
   return (
     <>
       <button
-        onClick={(e) =>
-          setCls(
-            "rounded-lg transition-all duration-500 [bg-green-500, bg-orange-500]"
-          )
-        }
+        onClick={(e) => {
+          setCls("rounded-lg bg-red-500 animate-[wgw_3s]");
+          setTimeout(() => {
+            setCls("rounded-lg bg-red-500");
+          }, 3000);
+        }}
         type="submit"
         className={cls}
       >

@@ -12,20 +12,109 @@ const { title } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
   <body>
     <Navbar />
-
-    <slot />
+    <main class="mt-14 mx-auto p-6 max-w-prose place-content-center">
+      <slot />
+      <div class="light fixed top-0"></div>
+    </main>
   </body>
 </html>
 <style is:global>
-  main {
-    margin: auto;
-    padding: 1.5rem;
-    max-width: 60ch;
+  html {
+    height: 100%;
+
+    background-color: black;
+    background-image: repeating-linear-gradient(
+      20deg,
+      #0d0d0e,
+      #231c35,
+      #0c0d0e
+    );
+    background-attachment: fixed;
+  }
+
+  .star1 {
+    animation: 3s linear 1s infinite alternate twinkle;
+  }
+
+  .star2 {
+    animation: 4s linear 0s infinite alternate twinkle;
+  }
+
+  .star3 {
+    animation: 3.5s linear 0.5s infinite alternate twinkle;
+  }
+
+  .star4 {
+    animation: 1.25s linear 1.5s infinite alternate twinkle;
+  }
+
+  .star5 {
+    animation: 4s linear 2s infinite alternate twinkle;
+  }
+
+  .star6 {
+    animation: 2.5s linear 1s infinite alternate twinkle;
+  }
+
+  @keyframes twinkle {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 </style>
+<script>
+  const sizes = [1, 1, 2, 3, 4];
+
+  //get random position between 1 - 100;
+  function randomPosition(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  const body = document.querySelector(".body");
+
+  for (let i = 0; i < 300; i++) {
+    const top = randomPosition(1, 100);
+    const left = randomPosition(1, 100);
+    const random = Math.floor(Math.random() * sizes.length);
+    const randomSize = sizes[random];
+    const div = document.createElement("div");
+    div.style.position = "fixed";
+    div.style.top = top + "%";
+    div.style.left = left + "%";
+    div.style.height = randomSize + "px";
+    div.style.width = randomSize + "px";
+    div.style.backgroundColor = "#FFFFFF";
+    div.style.borderRadius = "50%";
+    if (i <= 50) {
+      div.classList.add("star1");
+    }
+    if (i <= 100 && i > 50) {
+      div.classList.add("star2");
+    }
+    if (i <= 150 && i > 100) {
+      div.classList.add("star3");
+    }
+    if (i <= 200 && i > 150) {
+      div.classList.add("star4");
+    }
+    if (i <= 250 && i > 200) {
+      div.classList.add("star5");
+    }
+    if (i <= 300 && i > 250) {
+      div.classList.add("star6");
+    }
+    document.body.appendChild(div);
+  }
+</script>

@@ -97,33 +97,28 @@ const TrainingC: React.FC = () => {
       setUiBloked(true);
 
       const setColor = (color: string) => {
-        setAnswerStyles((styles) => {
-          return styles.map((e, key) => {
-            //console.log(key, pos, randomPositions[0]);
-            let st =
-              randomPositions[key] == 0 && key !== pos
-                ? `rounded-lg transition duration-500 bg-green-500`
-                : key == pos //TODO работает ненадежно (иногда под курсором белой становится, хотя строка правильная)
-                ? `rounded-lg transition duration-500 bg-${color}-100`
-                : e;
-            return st;
-          });
-        });
-
-        //e.currentTarget.className = "transition duration-2000 bg-blue-100";
+        setAnswerStyles(
+          answerStyles.map((e, key) => {
+            return randomPositions[key] == 0 && key !== pos
+              ? `rounded-lg animate-[bdgb_1500ms]`
+              : key == pos //TODO почему [b${color}b_5s] рандомным образом ломает все
+              ? randomPositions[pos] == 0
+                ? "rounded-lg animate-[bgb_1500ms]"
+                : `rounded-lg animate-[brb_1500ms]`
+              : e;
+          })
+        );
 
         setTimeout(() => {
-          setAnswerStyles((styles) => {
-            return styles.map((e, key) => {
-              return "rounded-lg transition duration-500 bg-blue-100";
-            });
-          });
+          setAnswerStyles(
+            answerStyles.map((e, key) => {
+              return "rounded-lg bg-blue-100";
+            })
+          );
 
-          setTimeout(() => {
-            randomize();
-            setUiBloked(false);
-          }, 500);
-        }, 500);
+          randomize();
+          setUiBloked(false);
+        }, 1500);
       };
 
       if (randomPositions[pos] == 0) {
@@ -143,7 +138,7 @@ const TrainingC: React.FC = () => {
           udatedRandomItems[randomPositions[pos] as number]
         );
 
-        setColor("green");
+        setColor("dg");
       } else {
         setWrongAnswersCounter((c) => {
           return ++c;
@@ -161,7 +156,7 @@ const TrainingC: React.FC = () => {
           udatedRandomItems[randomPositions[pos] as number]
         );
 
-        setColor("red");
+        setColor("r");
       }
     }
   };
@@ -182,7 +177,8 @@ const TrainingC: React.FC = () => {
             <div
               key={key}
               className={answerStyles[key]}
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 checkAnswer(key);
               }}
             >

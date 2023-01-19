@@ -1,6 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-
 import Tw_test from "../components/tw_test";
 ---
 
@@ -8,14 +7,16 @@ import Tw_test from "../components/tw_test";
   <main>
     <Tw_test client:load />
 
-    <button type="submit" id="text" class=""> Delete all</button>
+    <button type="submit" id="text2" class="animate-[wgw_3s]">
+      Delete all</button
+    >
   </main>
 
   <style>
     #text {
-      animation: 3s multicolor;
+      animation: 3s multicolor1;
     }
-    @keyframes multicolor {
+    @keyframes multicolor1 {
       0% {
         color: #000;
       }
