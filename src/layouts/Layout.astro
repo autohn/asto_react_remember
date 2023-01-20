@@ -31,9 +31,9 @@ const { title } = Astro.props;
     background-color: black;
     background-image: repeating-linear-gradient(
       20deg,
-      #0d0d0e,
+      #0e0d0e,
       #231c35,
-      #0c0d0e
+      #1a0119
     );
     background-attachment: fixed;
   }
@@ -97,6 +97,8 @@ const { title } = Astro.props;
     div.style.width = randomSize + "px";
     div.style.backgroundColor = "#FFFFFF";
     div.style.borderRadius = "50%";
+    div.style.zIndex = "-1";
+
     if (i <= 50) {
       div.classList.add("star1");
     }

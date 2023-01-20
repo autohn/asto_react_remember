@@ -15,7 +15,7 @@ const currentPath = pathname.slice(1);
       >
     </a>
 
-    <div class="block md:w-auto">
+    <div class="block w-auto">
       <ul
         class="flex p-4 mt-4 rounded-lg flex-row space-x-8 mt-0 text-sm font-medium mborder-0"
       >
@@ -25,8 +25,7 @@ const currentPath = pathname.slice(1);
             class={(currentPath === ""
               ? "text-starC text-shadow shadow-starC "
               : "text-darkstarC ") +
-              "block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0"}
-            >Home</a
+              "block py-2 pl-3 pr-4 rounded hover:text-lightstarC p-0"}>Home</a
           >
         </li>
 
@@ -36,7 +35,7 @@ const currentPath = pathname.slice(1);
             class={(currentPath === "training"
               ? "text-starC text-shadow shadow-starC "
               : "text-darkstarC ") +
-              "block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0"}
+              "block py-2 pl-3 pr-4 rounded hover:text-lightstarC p-0"}
             >Training</a
           >
         </li>

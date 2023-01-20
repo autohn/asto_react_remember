@@ -9,8 +9,10 @@ module.exports = {
     extend: {
       colors: {
         darkPC: "#320247",
+        superdarkPC: "#1c011c",
         brightPC: "#461678",
         supertbrightPC: "#6a1678",
+        lightstarC: "#fefecd",
         starC: "#feec5b",
         darkstarC: "#fe7a39",
       },
@@ -21,35 +23,35 @@ module.exports = {
       keyframes: {
         bgb: {
           from: {
-            "background-color": "rgb(219 234 254)",
+            "background-color": "#1c011c",
           },
           "50%": {
-            "background-color": "rgb(209 250 229)",
+            "background-color": "#1ac709",
           },
           to: {
-            "background-color": "rgb(219 234 254)",
+            "background-color": "#1c011c",
           },
         },
         bdgb: {
           from: {
-            "background-color": "rgb(219 234 254)",
+            "background-color": "#1c011c",
           },
           "50%": {
-            "background-color": "rgb(34 197 94)",
+            "background-color": "#1a8607",
           },
           to: {
-            "background-color": "rgb(219 234 254)",
+            "background-color": "#1c011c",
           },
         },
         brb: {
           from: {
-            "background-color": "rgb(219 234 254)",
+            "background-color": "#1c011c",
           },
           "50%": {
-            "background-color": "rgb(252 165 165)",
+            "background-color": "#ba0005",
           },
           to: {
-            "background-color": "rgb(219 234 254)",
+            "background-color": "#1c011c",
           },
         },
       },

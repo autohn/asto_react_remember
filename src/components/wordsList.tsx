@@ -11,6 +11,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { server_ip } from "../api";
 
 type newWrdPair = Pick<wordPair, "eng" | "rus">;
 
@@ -35,7 +36,7 @@ const WordsList: React.FC = () => {
 };
 
 const addNewPair = async ({ eng, rus }: newWrdPair) => {
-  return fetch("http://127.0.0.1:8090/api/collections/words/records/", {
+  return fetch(`${server_ip}:8090/api/collections/words/records/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -48,7 +49,7 @@ const addNewPair = async ({ eng, rus }: newWrdPair) => {
 };
 
 const deletePair = async (id: string) => {
-  return fetch(`http://127.0.0.1:8090/api/collections/words/records/${id}`, {
+  return fetch(`${server_ip}:8090/api/collections/words/records/${id}`, {
     method: "DELETE",
   });
 };
@@ -119,7 +120,7 @@ export const WordsListC: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="text-starC">
       <form onSubmit={(e) => e.preventDefault()}>
         <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
           Search
@@ -206,11 +207,11 @@ export const WordsListC: React.FC = () => {
               }}
               key={word.id}
             >
-              {word.eng} {word.rus}
+              {word.eng.toLowerCase()} {word.rus.toLowerCase()}
             </p>
           ))}
       </>
-    </>
+    </div>
   );
 };
 

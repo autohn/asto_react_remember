@@ -9,6 +9,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { server_ip } from "../api";
 
 type newWrdPair = Pick<wordPair, "eng" | "rus">;
 
@@ -35,7 +36,7 @@ const Training: React.FC = () => {
 
 const editPair = async (pair?: wordPair) => {
   if (pair) {
-    fetch(`http://127.0.0.1:8090/api/collections/words/records/${pair.id}`, {
+    fetch(`${server_ip}:8090/api/collections/words/records/${pair.id}`, {
       method: "PATCH",
 
       headers: { "Content-Type": "application/json" },
@@ -46,6 +47,7 @@ const editPair = async (pair?: wordPair) => {
 };
 
 const TrainingC: React.FC = () => {
+  const answerInitStyle = "rounded-lg bg-superdarkPC hover:bg-darkPC w-full";
   const [randomItems, setRandomItems] = useState<Array<wordPair>>([]);
   const [randomPositions, setRandomPositions] = useState<Array<number>>([
     0, 1, 2, 3,
@@ -53,10 +55,10 @@ const TrainingC: React.FC = () => {
   const [correctAnswersCounter, setCorrectAnswersCounter] = useState<number>(0);
   const [wrongAnswersCounter, setWrongAnswersCounter] = useState<number>(0);
   const [answerStyles, setAnswerStyles] = useState<Array<string>>([
-    "rounded-lg bg-blue-100",
-    "rounded-lg bg-blue-100",
-    "rounded-lg bg-blue-100",
-    "rounded-lg bg-blue-100",
+    answerInitStyle,
+    answerInitStyle,
+    answerInitStyle,
+    answerInitStyle,
   ]);
 
   const [uiBloked, setUiBloked] = useState<boolean>(false);
@@ -112,7 +114,7 @@ const TrainingC: React.FC = () => {
         setTimeout(() => {
           setAnswerStyles(
             answerStyles.map((e, key) => {
-              return "rounded-lg bg-blue-100";
+              return answerInitStyle;
             })
           );
 
@@ -166,10 +168,10 @@ const TrainingC: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <div className="text-starC">
       <div>
-        <div className="rounded-lg bg-orange-100 text-center my-4">
-          {randomItems[0]?.eng}
+        <div className="text-lg rounded-lg bg-superdarkPC text-center my-4 max-w-md h-10 m-auto leading-9 border-2 border-darkPC capitalize">
+          {randomItems[0]?.eng.toLowerCase() ?? "-"}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -182,18 +184,20 @@ const TrainingC: React.FC = () => {
                 checkAnswer(key);
               }}
             >
-              <p className="mx-2">
-                {randomItems[randomPositions[key] as number]?.rus}
+              <p className="mx-2 hover:text-lightstarC leading-7 ">
+                {randomItems[
+                  randomPositions[key] as number
+                ]?.rus.toLowerCase() ?? "-"}
               </p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="my-4">
+      <div className="my-4 text-center pt-10">
         Correct: {correctAnswersCounter} / Wrong: {wrongAnswersCounter}
       </div>
-    </>
+    </div>
   );
 };
 

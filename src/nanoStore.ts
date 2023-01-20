@@ -1,4 +1,5 @@
 import { atom } from "nanostores";
+import { server_ip } from "./api";
 
 export interface wordPair {
   eng: string;
@@ -13,7 +14,7 @@ export const getAllWords = async (): Promise<wordPair[]> => {
     let items: any;
     const firstItems = await (
       await fetch(
-        "http://127.0.0.1:8090/api/collections/words/records/?perPage=500"
+        `${server_ip}:8090/api/collections/words/records/?perPage=500`
       )
     ).json();
 
@@ -24,7 +25,7 @@ export const getAllWords = async (): Promise<wordPair[]> => {
         [...Array(firstItems.totalPages - 1)].map(async (e, key) => {
           return await (
             await fetch(
-              `http://127.0.0.1:8090/api/collections/words/records/?perPage=500&page=${
+              `${server_ip}:8090/api/collections/words/records/?perPage=500&page=${
                 key + 2
               }`
             )
