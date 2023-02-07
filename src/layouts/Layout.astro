@@ -78,9 +78,10 @@ const { title } = Astro.props;
     }
   }
 </style>
+
 <script>
   const sizes = [1, 1, 2, 3, 4];
-
+  console.log("Layout");
   //get random position between 1 - 100;
   function randomPosition(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;

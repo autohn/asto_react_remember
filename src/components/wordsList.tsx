@@ -1,8 +1,8 @@
 import type React from "react";
 import { useState, useEffect, useMemo, useContext, createContext } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import type { wordPair } from "../nanoStore";
-import { getAllWords } from "../nanoStore";
+import type { wordPair, newWordPair } from "../api";
+import { getAllWords, addNewPair, deletePair } from "../api";
 import { useStore } from "@nanostores/react";
 import {
   useQuery,
@@ -11,16 +11,13 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { server_ip } from "../api";
-
-type newWrdPair = Pick<wordPair, "eng" | "rus">;
 
 const cacheTime = 1000 * 60 * 60 * 24 * 2;
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       cacheTime,
-      suspense: true,
+      //suspense: true,
     },
   },
 });
@@ -33,25 +30,6 @@ const WordsList: React.FC = () => {
       </QueryClientProvider>
     </>
   );
-};
-
-const addNewPair = async ({ eng, rus }: newWrdPair) => {
-  return fetch(`${server_ip}:8090/api/collections/words/records/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      eng: eng,
-      rus: rus,
-      correctAnswers: 0,
-      wrongAnswers: 0,
-    }),
-  });
-};
-
-const deletePair = async (id: string) => {
-  return fetch(`${server_ip}:8090/api/collections/words/records/${id}`, {
-    method: "DELETE",
-  });
 };
 
 export const WordsListC: React.FC = () => {
@@ -68,7 +46,11 @@ export const WordsListC: React.FC = () => {
   const { data } = useQuery({
     queryKey: ["words"],
     queryFn: getAllWords,
-    suspense: true,
+    onSuccess: (e) => {
+      console.log(e.length);
+      e.forEach((i) => console.log(i));
+    },
+    //suspense: true,
   });
 
   const addNewPairMutation = useMutation({
@@ -96,7 +78,7 @@ export const WordsListC: React.FC = () => {
 
   const addFromFile = async () => {
     if (selectedFile?.type == "application/json") {
-      JSON.parse(await selectedFile.text()).list.forEach((e: newWrdPair) =>
+      JSON.parse(await selectedFile.text()).list.forEach((e: newWordPair) =>
         addNewPairMutation.mutate({ eng: e.eng, rus: e.rus })
       );
     }
@@ -198,7 +180,10 @@ export const WordsListC: React.FC = () => {
       {status === "loading" && <div>Loading...</div>} */}
       <>
         {data
-          ?.filter((i) => i.eng.includes(search) || i.rus.includes(search))
+          ?.filter((i) => {
+            console.log(i);
+            return i.eng.includes(search) || i.rus.includes(search);
+          })
           ?.map((word: wordPair, key: number) => (
             <p
               className="hover:bg-red-100"

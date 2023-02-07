@@ -1,0 +1,99 @@
+@import "../styles/variables";
+
+div {
+  color: $starC;
+}
+
+.question {
+  margin: auto;
+  width: 70%;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  line-height: 2.25rem;
+  text-align: center;
+  text-transform: capitalize;
+  max-width: 28rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  border-width: 2px;
+  border-color: $darkPC;
+  background-color: $superdarkPC;
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.answer {
+  width: 100%;
+  border-radius: 0.5rem;
+
+  background-color: $superdarkPC;
+  :hover {
+    background-color: $darkPC;
+  }
+  &_wrong {
+    animation-name: brb;
+    animation-duration: 1500ms;
+    width: 100%;
+    border-radius: 0.5rem;
+  }
+  &_correct {
+    animation-name: bgb;
+    animation-duration: 1500ms;
+    width: 100%;
+    border-radius: 0.5rem;
+  }
+  &_other_correct {
+    animation-name: bdgb;
+    animation-duration: 1500ms;
+    width: 100%;
+    border-radius: 0.5rem;
+  }
+}
+
+.correct-wrong {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+@keyframes bgb {
+  0% {
+    background-color: #1c011c;
+  }
+  50% {
+    background-color: #1ac709;
+  }
+  100% {
+    background-color: #1c011c;
+  }
+}
+
+@keyframes bdgb {
+  0% {
+    background-color: #1c011c;
+  }
+  50% {
+    background-color: #1a8607;
+  }
+  100% {
+    background-color: #1c011c;
+  }
+}
+
+@keyframes brb {
+  0% {
+    background-color: #1c011c;
+  }
+  50% {
+    background-color: #ba0005;
+  }
+  100% {
+    background-color: #1c011c;
+  }
+}

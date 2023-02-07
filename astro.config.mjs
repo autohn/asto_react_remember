@@ -15,6 +15,11 @@ import deno from "@astrojs/deno";
 // https://astro.build/config
 export default defineConfig({
   integrations: [react(), tailwind()],
+  /*   output: "server",
+  adapter: deno(), */
+
   output: "server",
-  adapter: deno(),
+  adapter: node({
+    mode: "standalone",
+  }),
 });

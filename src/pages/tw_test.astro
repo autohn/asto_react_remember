@@ -1,12 +1,21 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Tw_test from "../components/tw_test";
+export const prerender = true;
+
+let a = false;
+if (a) {
+  return Astro.redirect("/lofin");
+}
+
+const timea = Date.now();
+console.log("log серверный снаружи", timea);
 ---
 
 <Layout title="Welcome to Astro.">
   <main>
     <Tw_test client:load />
-
+    <div class="text-white">html серверный {timea}</div>
     <button type="submit" id="text2" class="animate-[wgw_3s]">
       Delete all</button
     >
