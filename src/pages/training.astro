@@ -1,22 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Training from "../components/training";
-export const prerender = true;
+//export const prerender = true;
 ---
 
 <Layout title="Training">
   <Training client:load />
 </Layout>
-
-<style lang="scss">
-  @import "../styles/variables";
-  .answer {
-    width: 100%;
-    border-radius: 0.5rem;
-
-    background-color: $superdarkPC;
-    :hover {
-      background-color: $darkPC;
-    }
-  }
-</style>

@@ -6,6 +6,8 @@ export const tw_test: React.FC = () => {
   const [cls, setCls] = useState<string>("bg-red-500 rounded");
   const [timeas, setTimeas] = useState<any>("");
 
+  /*   const [test, setTest] = useState<any>(1); */
+
   getAllWords();
   /*   localStorage.setItem(
     "Remember", //TODO в зод проверке форм приводить к нижнему регистру
@@ -15,15 +17,24 @@ export const tw_test: React.FC = () => {
   for (let i in localStorage) {
     console.log(i);
   }
-  console.log(localStorage.hasOwnProperty("Remember"));
+  //console.log(localStorage.hasOwnProperty("Remember"));
 
   useEffect(() => {
+    /*     setTest((e: number) => {
+      return e + 1;
+    });
+
+    setTest((e: number) => {
+      console.log(e);
+      return e + 1;
+    });
+    console.log("123"); */
     const timeau = Date.now();
     setTimeas(timeau);
   }, []);
   const timea = Date.now();
 
-  console.log("log серверный внутри", timea);
+  //console.log("log серверный внутри", timea);
 
   function findLocalItems(query = "") {
     let results: any = [];

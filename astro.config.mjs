@@ -18,8 +18,8 @@ export default defineConfig({
   /*   output: "server",
   adapter: deno(), */
 
-  output: "server",
+  /*   output: "server",
   adapter: node({
     mode: "standalone",
-  }),
+  }), */
 });

@@ -9,7 +9,6 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import "../styles/training.scss";
 
 const cacheTime = 1000 * 60 * 60 * 24 * 2;
 
@@ -33,6 +32,8 @@ const Training: React.FC = () => {
 };
 
 const TrainingC: React.FC = () => {
+  const answerInitStyle =
+    "rounded-lg bg-cooBlackOlive hover:bg-cooDrabDarkBrown hover:text-shadow shadow-cooTimberWolf w-full";
   const [randomItems, setRandomItems] = useState<Array<wordPair>>([]);
   const [randomPositions, setRandomPositions] = useState<Array<number>>([
     0, 1, 2, 3,
@@ -40,10 +41,10 @@ const TrainingC: React.FC = () => {
   const [correctAnswersCounter, setCorrectAnswersCounter] = useState<number>(0);
   const [wrongAnswersCounter, setWrongAnswersCounter] = useState<number>(0);
   const [answerStyles, setAnswerStyles] = useState<Array<string>>([
-    "answer",
-    "answer",
-    "answer",
-    "answer",
+    answerInitStyle,
+    answerInitStyle,
+    answerInitStyle,
+    answerInitStyle,
   ]);
 
   const [uiBloked, setUiBloked] = useState<boolean>(false);
@@ -91,26 +92,19 @@ const TrainingC: React.FC = () => {
         setAnswerStyles(
           answerStyles.map((e, key) => {
             return randomPositions[key] == 0 && key !== pos
-              ? "answer_other_correct"
-              : key == pos //TODO почему [b${color}b_5s] рандомным образом ломает все
-              ? randomPositions[pos] == 0
-                ? "answer_correct"
-                : "answer_wrong"
-              : e;
-            /*             return randomPositions[key] == 0 && key !== pos
               ? `rounded-lg animate-[bdgb_1500ms]`
               : key == pos //TODO почему [b${color}b_5s] рандомным образом ломает все
               ? randomPositions[pos] == 0
                 ? "rounded-lg animate-[bgb_1500ms]"
                 : `rounded-lg animate-[brb_1500ms]`
-              : e; */
+              : e;
           })
         );
 
         setTimeout(() => {
           setAnswerStyles(
             answerStyles.map((e, key) => {
-              return "answer";
+              return answerInitStyle;
             })
           );
 
@@ -164,13 +158,13 @@ const TrainingC: React.FC = () => {
   }, []);
 
   return (
-    <div className="">
+    <div>
       <div>
-        <div className="question">
+        <div className="text-lg rounded-lg bg-cooBlackOlive text-center my-4 max-w-md h-10 m-auto leading-9 border-2 border-cooFeldgrau capitalize">
           {randomItems[0]?.eng.toLowerCase() ?? "-"}
         </div>
 
-        <div className="answer-grid">
+        <div className="grid grid-cols-2 gap-4">
           {[...Array(4)].map((x, key) => (
             <div
               key={key}
@@ -180,7 +174,7 @@ const TrainingC: React.FC = () => {
                 checkAnswer(key);
               }}
             >
-              <p className="">
+              <p className="mx-2 leading-7">
                 {randomItems[
                   randomPositions[key] as number
                 ]?.rus.toLowerCase() ?? "-"}
@@ -190,7 +184,7 @@ const TrainingC: React.FC = () => {
         </div>
       </div>
 
-      <div className="correct-wrong">
+      <div className="my-4 text-center pt-10">
         Correct: {correctAnswersCounter} / Wrong: {wrongAnswersCounter}
       </div>
     </div>

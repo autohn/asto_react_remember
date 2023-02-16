@@ -15,6 +15,16 @@ module.exports = {
         lightstarC: "#fefecd",
         starC: "#feec5b",
         darkstarC: "#fe7a39",
+        greenSD: "#021b02",
+        greenD: "#034801",
+        greenM: "#057d03",
+        greenL: "#07a004",
+        greenSL: "#08c605",
+        cooBlackOlive: "#222B19",
+        cooDrabDarkBrown: "#32381A",
+        cooDarkMossGreen: "#4C5A3A",
+        cooTimberWolf: "#CFCFCE",
+        cooFeldgrau: "#455A59",
       },
       textShadow: {
         sm: "0 1px 2px var(--tw-shadow-color)",
@@ -23,35 +33,35 @@ module.exports = {
       keyframes: {
         bgb: {
           from: {
-            "background-color": "#1c011c",
+            "background-color": "#222B19",
           },
           "50%": {
             "background-color": "#1ac709",
           },
           to: {
-            "background-color": "#1c011c",
+            "background-color": "#222B19",
           },
         },
         bdgb: {
           from: {
-            "background-color": "#1c011c",
+            "background-color": "#222B19",
           },
           "50%": {
             "background-color": "#1a8607",
           },
           to: {
-            "background-color": "#1c011c",
+            "background-color": "#222B19",
           },
         },
         brb: {
           from: {
-            "background-color": "#1c011c",
+            "background-color": "#222B19",
           },
           "50%": {
             "background-color": "#ba0005",
           },
           to: {
-            "background-color": "#1c011c",
+            "background-color": "#222B19",
           },
         },
       },
@@ -68,5 +78,6 @@ module.exports = {
         { values: theme("textShadow") }
       );
     }),
+    require("daisyui"),
   ],
 };

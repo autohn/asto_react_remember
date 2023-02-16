@@ -1,3 +1,5 @@
+import ky from "ky";
+
 export const server_name = import.meta.env.PUBLIC_SERVER_NAME;
 
 export interface wordPair {
@@ -16,13 +18,14 @@ export const editPair = async (pair?: wordPair) => {
       localStorage.setItem(pair.eng + "Remember", JSON.stringify(pair));
       return Promise.resolve(pair);
     } else {
-      return fetch(`${server_name}api/collections/words/records/${pair.id}`, {
-        method: "PATCH",
+      return ky.patch(
+        `${server_name}api/collections/words/records/${pair.id}`,
+        {
+          headers: { "Content-Type": "application/json" },
 
-        headers: { "Content-Type": "application/json" },
-
-        body: JSON.stringify(pair),
-      });
+          body: JSON.stringify(pair),
+        }
+      );
     }
   } else {
     return Promise.reject("");
@@ -45,8 +48,7 @@ export const addNewPair = async ({ eng, rus }: newWordPair) => {
     );
     return Promise.resolve(newItem);
   } else {
-    return fetch(`${server_name}api/collections/words/records/`, {
-      method: "POST",
+    return ky.post(`${server_name}api/collections/words/records/`, {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         eng: eng,
@@ -63,11 +65,16 @@ export const deletePair = async (id: string) => {
     localStorage.removeItem(id + "Remember");
     return Promise.resolve({});
   } else {
-    return fetch(`${server_name}api/collections/words/records/${id}`, {
+    return ky.delete(`${server_name}api/collections/words/records/${id}`, {
       method: "DELETE",
     });
   }
 };
+
+interface wordPairsLit {
+  items: wordPair[];
+  totalPages: number;
+}
 
 export const getAllWords = async (): Promise<wordPair[]> => {
   if (import.meta.env.PUBLIC_STORAGE_TYPE === "localStorage") {
@@ -83,22 +90,22 @@ export const getAllWords = async (): Promise<wordPair[]> => {
   } else {
     try {
       let items: any;
-      const firstItems = await (
-        await fetch(`${server_name}api/collections/words/records/?perPage=500`)
-      ).json();
+      const firstItems: wordPairsLit = await ky
+        .get(`${server_name}api/collections/words/records/?perPage=500`)
+        .json();
 
       items = firstItems.items;
 
       if (firstItems.totalPages > 1) {
-        let additionalItems = await Promise.all(
+        let additionalItems: wordPairsLit[] = await Promise.all(
           [...Array(firstItems.totalPages - 1)].map(async (e, key) => {
-            return await (
-              await fetch(
+            return await ky
+              .get(
                 `${server_name}api/collections/words/records/?perPage=500&page=${
                   key + 2
                 }`
               )
-            ).json();
+              .json();
           })
         );
         additionalItems.forEach((e) => {

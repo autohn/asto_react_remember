@@ -3,21 +3,40 @@ const pathname = new URL(Astro.request.url).pathname;
 const currentPath = pathname.slice(1);
 ---
 
-<nav class="navbar">
-  <div class="navbar-container">
-    <a href="#" class="main-logo">
-      <img src="/logo.ico" class="logo-img" alt="Training Logo" />
-      <span class="logo-text">Training</span>
+<nav
+  class="z-50 fixed top-0 w-full px-2 bg-gradient-to-r from-cooBlackOlive via-cooDrabDarkBrown to-cooDarkMossGreen border-gray-200"
+>
+  <div class="container flex flex-wrap items-center justify-between mx-auto">
+    <a href="/" class="flex items-center">
+      <img src="/logo.ico" class="h-10 mr-3 m-1" alt="Training Logo" />
+      <span
+        class="text-shadow shadow-cooTimberWolf self-center text-xl font-semibold whitespace-nowrap text-cooTimberWolf"
+        >Training</span
+      >
     </a>
 
-    <div class="nav-block">
-      <ul class="">
+    <div class="block w-auto">
+      <ul
+        class="flex mt-4 rounded-lg flex-row mt-0 text-sm font-medium mborder-0"
+      >
         <li>
-          <a class={currentPath === "" ? "active" : ""} href="/">Home</a>
+          <a
+            href="/"
+            class={(currentPath === ""
+              ? "text-cooTimberWolf text-shadow shadow-cooTimberWolf "
+              : "text-cooTimberWolf ") +
+              "block py-2 pl-3 pr-4 rounded hover:text-shadow shadow-cooTimberWolf p-0"}
+            >Home</a
+          >
         </li>
 
         <li>
-          <a class={currentPath === "training" ? "active" : ""} href="/training"
+          <a
+            href="/training"
+            class={(currentPath === "training"
+              ? "text-cooTimberWolf text-shadow shadow-cooTimberWolf "
+              : "text-cooTimberWolf ") +
+              "block py-2 pl-3 pr-4 rounded hover:text-shadow shadow-cooTimberWolf p-0"}
             >Training</a
           >
         </li>
@@ -25,68 +44,3 @@ const currentPath = pathname.slice(1);
     </div>
   </div>
 </nav>
-
-<style lang="scss">
-  @import "../styles/variables";
-  .navbar {
-    position: fixed;
-    top: 0;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    width: 100%;
-    background-image: linear-gradient(to right, $greenD, $greenL);
-    border-color: #e5e7eb;
-  }
-  .navbar-container {
-    width: 90%;
-    display: flex;
-    margin-left: auto;
-    margin-right: auto;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .main-logo {
-    display: flex;
-    align-items: center;
-  }
-  .logo-img {
-    margin-right: 0.75rem;
-    height: 2.5rem;
-  }
-  .logo-text {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-    align-self: center;
-    color: $starC;
-    text-shadow: 1px 0 10px $starC;
-  }
-  .nav-block {
-    display: block;
-    width: auto;
-    ul {
-      display: flex;
-      a {
-        display: block;
-        padding: 0;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-        padding-left: 0.75rem;
-        padding-right: 1rem;
-        border-radius: 0.25rem;
-
-        color: $darkstarC;
-
-        :hover {
-          color: $lightstarC;
-        }
-      }
-      a.active {
-        color: $starC;
-        text-shadow: 1px 0 10px $starC;
-      }
-    }
-  }
-</style>
