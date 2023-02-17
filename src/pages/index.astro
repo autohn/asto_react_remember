@@ -5,6 +5,12 @@ import WordsList from "../components/wordsList";
 //export const prerender = true;
 ---
 
+<script>
+  if (!localStorage.getItem("authentication_token")) {
+    location.replace("/login");
+  }
+</script>
+
 <Layout title="Welcome to Astro.">
   <WordsList client:load />
 </Layout>

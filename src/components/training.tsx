@@ -127,7 +127,7 @@ const TrainingC: React.FC = () => {
         setRandomItems(udatedRandomItems);
 
         editPairMutation.mutate(
-          udatedRandomItems[randomPositions[pos] as number]
+          udatedRandomItems[randomPositions[pos] as number]!
         );
 
         setColor("dg");
@@ -144,8 +144,10 @@ const TrainingC: React.FC = () => {
 
         setRandomItems(udatedRandomItems);
 
+        //TODO неправильно работает когда элементов меньше 4
+
         editPairMutation.mutate(
-          udatedRandomItems[randomPositions[pos] as number]
+          udatedRandomItems[randomPositions[pos] as number]!
         );
 
         setColor("r");

@@ -8,7 +8,7 @@ export const tw_test: React.FC = () => {
 
   /*   const [test, setTest] = useState<any>(1); */
 
-  getAllWords();
+  //getAllWords();
   /*   localStorage.setItem(
     "Remember", //TODO в зод проверке форм приводить к нижнему регистру
     JSON.stringify({})

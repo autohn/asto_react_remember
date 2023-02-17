@@ -4,6 +4,12 @@ import Training from "../components/training";
 //export const prerender = true;
 ---
 
+<script>
+  if (!localStorage.getItem("authentication_token")) {
+    location.replace("/login");
+  }
+</script>
+
 <Layout title="Training">
   <Training client:load />
 </Layout>

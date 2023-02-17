@@ -1,6 +1,16 @@
 import ky from "ky";
+import Surreal from "surrealdb.js";
+import { authenticationToken, userName } from "./nanoStore";
 
 export const server_name = import.meta.env.PUBLIC_SERVER_NAME;
+
+const db = new Surreal("http://127.0.0.1:8000/rpc");
+if (authenticationToken.get()) {
+  db.authenticate(authenticationToken.get());
+  //await db.use("my_ns", "my_db");
+} else {
+  alert("Ошибка подключения к базе");
+}
 
 export interface wordPair {
   eng: string;
@@ -12,63 +22,55 @@ export interface wordPair {
 
 export type newWordPair = Pick<wordPair, "eng" | "rus">;
 
-export const editPair = async (pair?: wordPair) => {
-  if (pair) {
-    if (import.meta.env.PUBLIC_STORAGE_TYPE === "localStorage") {
-      localStorage.setItem(pair.eng + "Remember", JSON.stringify(pair));
-      return Promise.resolve(pair);
-    } else {
-      return ky.patch(
-        `${server_name}api/collections/words/records/${pair.id}`,
-        {
-          headers: { "Content-Type": "application/json" },
-
-          body: JSON.stringify(pair),
-        }
-      );
-    }
-  } else {
-    return Promise.reject("");
-  }
+export const editPair = async (pair: wordPair) => {
+  let res = db.update(pair.id, {
+    user: `user:${userName.get()}`,
+    ...pair,
+  });
+  console.log(res);
+  return 0;
 };
 
 export const addNewPair = async ({ eng, rus }: newWordPair) => {
-  if (import.meta.env.PUBLIC_STORAGE_TYPE === "localStorage") {
-    const newItem = {
-      eng: eng,
-      rus: rus,
-      id: eng,
-      correctAnswers: 0,
-      wrongAnswers: 0,
-    };
+  return db.create("wordPair", {
+    user: `user:${userName.get()}`,
+    eng: eng,
+    rus: rus,
+    correctAnswers: 0,
+    wrongAnswers: 0,
+  });
 
-    localStorage.setItem(
-      eng + "Remember", //TODO в зод проверке форм приводить к нижнему регистру
-      JSON.stringify(newItem)
-    );
-    return Promise.resolve(newItem);
-  } else {
-    return ky.post(`${server_name}api/collections/words/records/`, {
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        eng: eng,
-        rus: rus,
-        correctAnswers: 0,
-        wrongAnswers: 0,
-      }),
-    });
-  }
+  //TODO переделать без sql
+
+  /*   let word = await db.query(`SELECT * FROM user`, {
+    tb: "person",
+  }); */
+  /* 
+  let word = await db.query(`CREATE wordPair SET eng='${eng}', rus='${rus}'`, {
+    tb: "person",
+  }); 
+  console.log(word);*/
+  /*   await db.create("wordPair", {
+    eng: eng,
+    rus: rus,
+    correctAnswers: "0",
+    wrongAnswers: "0",
+  });
+ */
+  /*   await db.query(`UPDATE user:${userName.get()} SET words += ['${word}']`);
+
+  await db.query(` UPDATE ${word} SET owner = user:user:${userName.get()}`); */
+
+  /* await db.create("wordPair", {
+    eng: eng,
+    rus: rus,
+    correctAnswers: "0",
+    wrongAnswers: "0",
+  }); */
 };
 
 export const deletePair = async (id: string) => {
-  if (import.meta.env.PUBLIC_STORAGE_TYPE === "localStorage") {
-    localStorage.removeItem(id + "Remember");
-    return Promise.resolve({});
-  } else {
-    return ky.delete(`${server_name}api/collections/words/records/${id}`, {
-      method: "DELETE",
-    });
-  }
+  return db.delete(id);
 };
 
 interface wordPairsLit {
@@ -77,6 +79,9 @@ interface wordPairsLit {
 }
 
 export const getAllWords = async (): Promise<wordPair[]> => {
+  return db.select("wordPair");
+  /*   console.log(sel);
+
   if (import.meta.env.PUBLIC_STORAGE_TYPE === "localStorage") {
     let results: wordPair[] = [];
     for (let i in localStorage) {
@@ -120,5 +125,5 @@ export const getAllWords = async (): Promise<wordPair[]> => {
     } catch (error) {
       return Promise.reject(error);
     }
-  }
+  } */
 };
