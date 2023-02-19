@@ -3,7 +3,9 @@ import { atom, action, task } from "nanostores";
 import { persistentAtom } from "@nanostores/persistent";
 import Surreal from "surrealdb.js";
 
-const db = new Surreal("http://127.0.0.1:8000/rpc");
+const server_name = import.meta.env.PUBLIC_SERVER_NAME;
+
+const db = new Surreal(server_name);
 export interface credentials {
   username: string;
   password: string;

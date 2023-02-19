@@ -4,12 +4,16 @@ import { authenticationToken, userName } from "./nanoStore";
 
 export const server_name = import.meta.env.PUBLIC_SERVER_NAME;
 
-const db = new Surreal("http://127.0.0.1:8000/rpc");
-if (authenticationToken.get()) {
-  db.authenticate(authenticationToken.get());
-  //await db.use("my_ns", "my_db");
-} else {
-  alert("Ошибка подключения к базе");
+const db = new Surreal(server_name);
+try {
+  if (authenticationToken?.get()) {
+    db.authenticate(authenticationToken.get());
+    await db.use("my_ns", "my_db");
+  } else {
+    alert("Ошибка подключения к базе");
+  }
+} catch (e) {
+  console.log(e);
 }
 
 export interface wordPair {
