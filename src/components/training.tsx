@@ -162,7 +162,7 @@ const TrainingC: React.FC = () => {
   return (
     <div>
       <div>
-        <div className="text-lg rounded-lg bg-cooBlackOlive text-center my-4 max-w-md h-10 m-auto leading-9 border-2 border-cooFeldgrau capitalize">
+        <div className="text-lg rounded-lg bg-cooDarkBlackOlive text-center my-4 max-w-md h-10 m-auto leading-9 capitalize">
           {randomItems[0]?.eng.toLowerCase() ?? "-"}
         </div>
 

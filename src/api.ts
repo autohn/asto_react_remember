@@ -2,7 +2,7 @@ import ky from "ky";
 import Surreal from "surrealdb.js";
 import { authenticationToken, userName } from "./nanoStore";
 
-export const server_name = import.meta.env.PUBLIC_SERVER_NAME;
+export const server_name = import.meta.env.PUBLIC_DB_SERVER_NAME;
 
 const db = new Surreal(server_name);
 try {
@@ -13,7 +13,7 @@ try {
     alert("Ошибка подключения к базе");
   }
 } catch (e) {
-  console.log(e);
+  console.log("authenticate", e);
 }
 
 export interface wordPair {

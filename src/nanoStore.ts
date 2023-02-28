@@ -3,7 +3,7 @@ import { atom, action, task } from "nanostores";
 import { persistentAtom } from "@nanostores/persistent";
 import Surreal from "surrealdb.js";
 
-const server_name = import.meta.env.PUBLIC_SERVER_NAME;
+const server_name = import.meta.env.PUBLIC_DB_SERVER_NAME;
 
 const db = new Surreal(server_name);
 export interface credentials {
@@ -46,7 +46,7 @@ export const tryLogin = async (objCredential: credentials) => {
 
       console.log(jwt);
     } catch (e) {
-      alert(e);
+      console.log("tryLogin", e);
     }
   });
 };
@@ -54,6 +54,7 @@ export const tryLogin = async (objCredential: credentials) => {
 export const trySingUp = async (objCredential: credentials) => {
   await task(async () => {
     try {
+      console.log("0");
       let jwt = await db.signup({
         NS: "my_ns",
         DB: "my_db",
@@ -61,12 +62,14 @@ export const trySingUp = async (objCredential: credentials) => {
         user: objCredential.username,
         pass: objCredential.password,
       });
-
+      console.log("1");
       mutateIsLoggedIn(true);
+      console.log("2");
       authenticationToken.set(jwt);
+      console.log("3");
       userName.set(objCredential.username);
     } catch (e) {
-      alert(e);
+      console.log("trySingUp", e);
     }
   });
 };
