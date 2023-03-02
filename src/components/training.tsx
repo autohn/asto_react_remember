@@ -57,6 +57,10 @@ const TrainingC: React.FC = () => {
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     onSuccess: (d) => {
+      if (d.length < 4) {
+        alert("Must be minimum 4 words in the list");
+        location.replace("/");
+      }
       randomize(d);
     },
   });
@@ -176,7 +180,7 @@ const TrainingC: React.FC = () => {
                 checkAnswer(key);
               }}
             >
-              <p className="mx-2 leading-7">
+              <p className="mx-2 leading-7 overflow-auto">
                 {randomItems[
                   randomPositions[key] as number
                 ]?.rus.toLowerCase() ?? "-"}
@@ -186,8 +190,10 @@ const TrainingC: React.FC = () => {
         </div>
       </div>
 
-      <div className="my-4 text-center pt-10">
-        Correct: {correctAnswersCounter} / Wrong: {wrongAnswersCounter}
+      <div className="flex center">
+        <div className="p-2 my-4 rounded-lg bg-cooDarkBlackOlive m-auto capitalize">
+          Correct: {correctAnswersCounter} | Wrong: {wrongAnswersCounter}
+        </div>
       </div>
     </div>
   );

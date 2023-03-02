@@ -5,13 +5,6 @@ import Login from "../components/login";
 //export const prerender = true;
 ---
 
-<script>
-  // A simple navigation guard based on localStorage items
-  if (localStorage.getItem("authentication_token")) {
-    location.replace("/");
-  }
-</script>
-
 <Layout title="Welcome to Astro.">
   <Login client:load />
 </Layout>

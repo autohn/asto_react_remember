@@ -43,8 +43,6 @@ export const tryLogin = async (objCredential: credentials) => {
       mutateIsLoggedIn(true);
       authenticationToken.set(jwt);
       userName.set(objCredential.username);
-
-      console.log(jwt);
     } catch (e) {
       console.log("tryLogin", e);
     }
@@ -54,7 +52,6 @@ export const tryLogin = async (objCredential: credentials) => {
 export const trySingUp = async (objCredential: credentials) => {
   await task(async () => {
     try {
-      console.log("0");
       let jwt = await db.signup({
         NS: "my_ns",
         DB: "my_db",
@@ -62,11 +59,9 @@ export const trySingUp = async (objCredential: credentials) => {
         user: objCredential.username,
         pass: objCredential.password,
       });
-      console.log("1");
+
       mutateIsLoggedIn(true);
-      console.log("2");
       authenticationToken.set(jwt);
-      console.log("3");
       userName.set(objCredential.username);
     } catch (e) {
       console.log("trySingUp", e);
@@ -76,9 +71,7 @@ export const trySingUp = async (objCredential: credentials) => {
 
 export const tryLogout = async () => {
   await task(async () => {
-    // clear the authenticationToken
     authenticationToken.set("");
-    // set the state of isLoggedIn to false
     mutateIsLoggedIn(false);
   });
 };

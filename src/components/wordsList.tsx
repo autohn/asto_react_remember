@@ -50,6 +50,10 @@ export const WordsListC: React.FC = () => {
       //console.log(e.length);
       //e.forEach((i) => console.log(i));
     },
+    onError: (e) => {
+      //location.replace("/login");
+      console.log("errrorr", e);
+    },
     //suspense: true,
   });
 
@@ -126,81 +130,83 @@ export const WordsListC: React.FC = () => {
             value={search}
             type="search"
             id="default-search"
-            className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="block p-4 pl-10 text-sm w-full my-2 rounded-lg bg-cooFeldgrau border border-cooBlackOlive focus:border-cooDrabDarkBrown focus:outline-none"
             placeholder="Search words"
             required
           ></input>
         </div>
       </form>
-      <form onSubmit={handleAddPair}>
-        <input
-          className="input input-bordered input-xs w-1/3 max-w-xs"
-          type="text"
-          placeholder="eng"
-          value={eng}
-          onChange={(e) => setEng(e.target.value)}
-          required
-        ></input>
-        <input
-          className="input input-bordered input-xs w-1/3 max-w-xs"
-          type="text"
-          placeholder="rus"
-          value={rus}
-          onChange={(e) => setRus(e.target.value)}
-          required
-        ></input>
-        <button
-          type="submit"
-          className="bg-blue-300 hover:bg-blue-700 text-white w-1/3 font-bold py-2 px-4 rounded"
-        >
-          Add pair
-        </button>
-      </form>
 
-      <form
-        className="inline"
-        /*         onSubmit={(e) => {
+      <div className="grid grid-cols-2 gap-x-2">
+        <form className="flex flex-col " onSubmit={handleAddPair}>
+          <input
+            className="input-xs max-w-xs rounded-lg bg-cooFeldgrau border border-cooBlackOlive focus:border-cooDrabDarkBrown focus:outline-none"
+            type="text"
+            placeholder="eng"
+            value={eng}
+            onChange={(e) => setEng(e.target.value)}
+            required
+          ></input>
+          <input
+            className="input-xs max-w-xs rounded-lg bg-cooFeldgrau border border-cooBlackOlive focus:border-cooDrabDarkBrown focus:outline-none"
+            type="text"
+            placeholder="rus"
+            value={rus}
+            onChange={(e) => setRus(e.target.value)}
+            required
+          ></input>
+          <button type="submit" className="btn btn-primary my-2">
+            Add pair
+          </button>
+        </form>
+        <div className="flex flex-col">
+          <form
+            className=""
+            /*         onSubmit={(e) => {
           e.preventDefault();
           addFromFile();
         }} */
-      >
-        <input
-          className={`${
-            addNewPairFromFileMutation.status === "loading"
-              ? "file-input-warning"
-              : addNewPairFromFileMutation.status === "success"
-              ? "file-input-success"
-              : "file-input-primary"
-          }
-            file-input file-input-bordered file-input-primary w-full max-w-xs`}
-          type="file"
-          accept=".json"
-          placeholder="file"
-          multiple={false}
-          name="file"
-          required
-          onChange={(e) => {
-            e.preventDefault();
-            if (e.target?.files?.[0]) {
-              addFromFile(e.target.files[0]);
-            }
-            //setSelectedFile(e.target?.files![0]);
-          }}
-        ></input>
-        {/*         <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Add from json
-        </button> */}
-      </form>
-      <button
-        onClick={deleteAll}
-        type="submit"
-        className="ml-10 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Delete all
-      </button>
+          >
+            <input
+              className={`${
+                addNewPairFromFileMutation.status === "loading"
+                  ? "file-input-warning"
+                  : addNewPairFromFileMutation.status === "success"
+                  ? "file-input-success"
+                  : "file-input-primary"
+              }
+            file-input file-input-bordered file-input-primary w-full max-w-xs hover:bg-cooDrabDarkBrown`}
+              type="file"
+              accept=".json"
+              placeholder="file"
+              multiple={false}
+              name="file"
+              required
+              onChange={(e) => {
+                e.preventDefault();
+                if (e.target?.files?.[0]) {
+                  addFromFile(e.target.files[0]);
+                }
+                //setSelectedFile(e.target?.files![0]);
+              }}
+            ></input>
+          </form>
+
+          <button type="submit" className="btn btn-primary my-2">
+            <a href="/MATranslations.json" download>
+              Take Мискин list
+            </a>
+          </button>
+
+          <button
+            onClick={deleteAll}
+            type="submit"
+            className="hidden ml-10 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Delete all
+          </button>
+        </div>
+      </div>
       {/*       {status === "error" && <div>{status}</div>}
       {status === "loading" && <div>Loading...</div>} */}
       <>
@@ -210,28 +216,28 @@ export const WordsListC: React.FC = () => {
             return i.eng.includes(search) || i.rus.includes(search);
           })
           ?.map((word: wordPair, key: number) => (
-            <p
-              className="border-solid border-collapse border border-cooFeldgrau rounded-lg bg-cooBlackOlive hover:bg-cooDrabDarkBrown "
+            <div
+              className="flex justify-between border-solid border-collapse border border-cooFeldgrau rounded-lg bg-cooBlackOlive hover:bg-cooDrabDarkBrown "
               key={word.id}
             >
-              <span className="ml-2">
-                {word.eng.toLowerCase()} {word.rus.toLowerCase()}
-              </span>
-              <span className="float-right">
-                <span>
+              <div className="ml-2 truncate">
+                {word.eng.toLowerCase()} - {word.rus.toLowerCase()}
+              </div>
+              <div className="flex flex-nowrap">
+                <div className="whitespace-nowrap">
                   {word.correctAnswers} / {word.wrongAnswers}
-                </span>
+                </div>
 
                 <button
                   onClick={() => {
                     deletePairMutation.mutate(word.id);
                   }}
-                  className="ml-10 inline relative bottom-px btn btn-outline btn-error btn-xs"
+                  className="ml-2 inline relative bottom-px btn btn-outline btn-error btn-xs"
                 >
                   Delete
                 </button>
-              </span>
-            </p>
+              </div>
+            </div>
           ))}
       </>
     </div>

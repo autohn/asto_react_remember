@@ -10,7 +10,7 @@ async function buttonLogoutHandler() {
 
 const LogoutButton: React.FC = () => {
   return (
-    <button onClick={buttonLogoutHandler} className="btn">
+    <button onClick={buttonLogoutHandler} className="btn btn-primary">
       Logout
     </button>
   );

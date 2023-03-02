@@ -5,17 +5,29 @@ import { authenticationToken, userName } from "./nanoStore";
 export const server_name = import.meta.env.PUBLIC_DB_SERVER_NAME;
 
 const db = new Surreal(server_name);
+
 try {
-  if (authenticationToken?.get()) {
-    db.authenticate(authenticationToken.get());
+  await db.authenticate(authenticationToken.get()); //почему-то не работает если имя пользователя имеет спец символы (в базе хранится в скобках)
+  await db.use("my_ns", "my_db");
+} catch (e) {
+  //console.log("authenticate", e);
+}
+
+/* try {
+  if (authenticationToken.get()) {
+
+    await db.authenticate(authenticationToken.get());
     await db.use("my_ns", "my_db");
   } else {
     alert("Ошибка подключения к базе");
+    if (!localStorage.getItem("authentication_token")) {
+      location.replace("/");
+    }
   }
 } catch (e) {
   console.log("authenticate", e);
 }
-
+ */
 export interface wordPair {
   eng: string;
   rus: string;
