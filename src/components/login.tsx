@@ -4,8 +4,8 @@ import type { wordPair } from "../api";
 import {
   isLoggedIn,
   authenticationToken,
-  tryLogin,
-  trySingUp,
+  loginDB,
+  singUpDB,
   userName,
 } from "../nanoStore";
 import { z } from "zod";
@@ -49,40 +49,13 @@ const loginSchema = z.object({
 
 type LoginSchemaType = z.infer<typeof loginSchema>;
 
-/* type credentials = {
-  username: string;
-  password: string;
-};
-async function loginHandler(objCredential: credentials) {
-  objCredential.username = objCredential.username.toLowerCase();
-  await tryLogin(objCredential);
-  if (isLoggedIn?.get() && authenticationToken?.get()) {
-    location.replace("/");
-  }
-}
-
-async function registerHandler(objCredential: credentials) {
-  objCredential.username = objCredential.username.toLowerCase();
-  await trySingUp(objCredential);
-  if (isLoggedIn?.get() && authenticationToken?.get()) {
-    location.replace("/");
-  }
-}
- */
 const Login: React.FC = () => {
   const [loginOrRegister, setLoginOrRegister] = useState<"login" | "register">(
     "login"
   );
 
   const {
-    register: registerInputForRegister,
-    handleSubmit: handleRegisterSubmit,
-    formState: { errors: registerErrors, isSubmitting: registerIsSubmitting },
-  } = useForm<RegisterSchemaType>({
-    resolver: zodResolver(registerSchema),
-  });
-
-  const {
+    setError: setLoginError,
     register: registerInputForLogin,
     handleSubmit: handleLoginSubmit,
     formState: { errors: loginErrors, isSubmitting: loginIsSubmitting },
@@ -90,23 +63,44 @@ const Login: React.FC = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  const {
+    setError: setRegisterError,
+    register: registerInputForRegister,
+    handleSubmit: handleRegisterSubmit,
+    formState: { errors: registerErrors, isSubmitting: registerIsSubmitting },
+  } = useForm<RegisterSchemaType>({
+    resolver: zodResolver(registerSchema),
+  });
+
   const loginHandler: SubmitHandler<LoginSchemaType> = async (credentials) => {
-    console.log(credentials);
     credentials.username = credentials.username.toLowerCase();
-    await tryLogin(credentials);
-    if (isLoggedIn?.get() && authenticationToken?.get()) {
-      location.replace("/");
+    try {
+      await loginDB(credentials);
+      if (isLoggedIn?.get() && authenticationToken?.get()) {
+        location.replace("/");
+      }
+    } catch (e) {
+      setLoginError("root", {
+        type: "server",
+        message: `Can't login, something went wrong: ${e}`,
+      });
     }
   };
 
   const registerHandler: SubmitHandler<RegisterSchemaType> = async (
     credentials
   ) => {
-    console.log(credentials);
     credentials.username = credentials.username.toLowerCase();
-    await trySingUp(credentials);
-    if (isLoggedIn?.get() && authenticationToken?.get()) {
-      location.replace("/");
+    try {
+      await singUpDB(credentials);
+      if (isLoggedIn?.get() && authenticationToken?.get()) {
+        location.replace("/");
+      }
+    } catch (e) {
+      setRegisterError("root", {
+        type: "server",
+        message: `Can't register, something went wrong: ${e}`,
+      });
     }
   };
 
@@ -118,11 +112,17 @@ const Login: React.FC = () => {
             <div className="px-4 py-2 my-4 rounded-lg bg-cooDarkBlackOlive capitalize">
               Login
             </div>
+            {loginErrors.root && (
+              <div className="text-error px-4 py-2 my-2 rounded-lg bg-cooDarkBlackOlive text-sm">
+                {loginErrors.root?.message}
+              </div>
+            )}
             <form
               className="w-full min-w-fit max-w-xs"
               onSubmit={handleLoginSubmit(loginHandler)}
             >
               <input
+                autoComplete="username"
                 id="username"
                 type="text"
                 placeholder="Username"
@@ -135,6 +135,8 @@ const Login: React.FC = () => {
                 </div>
               )}
               <input
+                autoComplete="password"
+                id="password"
                 type="password"
                 placeholder="Password"
                 className="input-sm w-full min-w-xs max-w-xs mt-2 block rounded-lg bg-cooFeldgrau border border-cooBlackOlive focus:border-cooDrabDarkBrown focus:outline-none"
@@ -170,11 +172,17 @@ const Login: React.FC = () => {
             <div className="px-4 py-2 my-4 rounded-lg bg-cooDarkBlackOlive capitalize">
               Register
             </div>
+            {registerErrors.root && (
+              <div className="text-error px-4 py-2 my-2 rounded-lg bg-cooDarkBlackOlive text-sm">
+                {registerErrors.root?.message}
+              </div>
+            )}
             <form
               className="w-full min-w-fit max-w-xs"
               onSubmit={handleRegisterSubmit(registerHandler)}
             >
               <input
+                autoComplete="username"
                 id="username"
                 type="text"
                 placeholder="Username"
@@ -187,6 +195,7 @@ const Login: React.FC = () => {
                 </div>
               )}
               <input
+                autoComplete="email"
                 id="email"
                 type="email"
                 placeholder="Email"
@@ -199,7 +208,9 @@ const Login: React.FC = () => {
                 </div>
               )}
               <input
+                autoComplete="off"
                 id="password"
+                type="password"
                 placeholder="Password"
                 className="input-sm w-full min-w-xs max-w-xs mt-2 block rounded-lg bg-cooFeldgrau border border-cooBlackOlive focus:border-cooDrabDarkBrown focus:outline-none"
                 {...registerInputForRegister("password")}
@@ -210,8 +221,9 @@ const Login: React.FC = () => {
                 </div>
               )}
               <input
+                autoComplete="off"
                 id="confirmPassword"
-                type="confirmPassword"
+                type="password"
                 placeholder="Confirm Password"
                 className="input-sm w-full min-w-xs max-w-xs mt-2 block rounded-lg bg-cooFeldgrau border border-cooBlackOlive focus:border-cooDrabDarkBrown focus:outline-none"
                 {...registerInputForRegister("confirmPassword")}
@@ -247,7 +259,7 @@ const Login: React.FC = () => {
       <div className="absolute bottom-0 left-0">
         <button
           onClick={() => {
-            //loginHandler({ username: "admin", password: "admin" });
+            loginHandler({ username: "admin", password: "admin" });
           }}
           className="btn btn-primary"
         >
@@ -255,7 +267,12 @@ const Login: React.FC = () => {
         </button>
         <button
           onClick={() => {
-            //registerHandler({ username: "admin", password: "admin" });
+            registerHandler({
+              username: "admin",
+              email: "a@a.ru",
+              password: "admin",
+              confirmPassword: "admin",
+            });
           }}
           className="btn btn-primary mt-20"
         >

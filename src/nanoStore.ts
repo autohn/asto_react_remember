@@ -29,43 +29,35 @@ export const mutateIsLoggedIn = action(
   }
 );
 
-export const tryLogin = async (objCredential: credentials) => {
+export const loginDB = async (objCredential: credentials) => {
   await task(async () => {
-    try {
-      let jwt = await db.signin({
-        NS: "my_ns",
-        DB: "my_db",
-        SC: "allusers",
-        user: objCredential.username,
-        pass: objCredential.password,
-      });
+    let jwt = await db.signin({
+      NS: "my_ns",
+      DB: "my_db",
+      SC: "allusers",
+      user: objCredential.username,
+      pass: objCredential.password,
+    });
 
-      mutateIsLoggedIn(true);
-      authenticationToken.set(jwt);
-      userName.set(objCredential.username);
-    } catch (e) {
-      console.log("tryLogin", e);
-    }
+    mutateIsLoggedIn(true);
+    authenticationToken.set(jwt);
+    userName.set(objCredential.username);
   });
 };
 
-export const trySingUp = async (objCredential: credentials) => {
+export const singUpDB = async (objCredential: credentials) => {
   await task(async () => {
-    try {
-      let jwt = await db.signup({
-        NS: "my_ns",
-        DB: "my_db",
-        SC: "allusers",
-        user: objCredential.username,
-        pass: objCredential.password,
-      });
+    let jwt = await db.signup({
+      NS: "my_ns",
+      DB: "my_db",
+      SC: "allusers",
+      user: objCredential.username,
+      pass: objCredential.password,
+    });
 
-      mutateIsLoggedIn(true);
-      authenticationToken.set(jwt);
-      userName.set(objCredential.username);
-    } catch (e) {
-      console.log("trySingUp", e);
-    }
+    mutateIsLoggedIn(true);
+    authenticationToken.set(jwt);
+    userName.set(objCredential.username);
   });
 };
 
