@@ -1,6 +1,7 @@
 import ky from "ky";
 import Surreal from "surrealdb.js";
 import { authenticationToken, userName } from "./nanoStore";
+import { z } from "zod";
 
 export const server_name = import.meta.env.PUBLIC_DB_SERVER_NAME;
 
@@ -15,30 +16,19 @@ try {
   //console.log("authenticate", e);
 }
 
-/* try {
-  if (authenticationToken.get()) {
+export const wordPairSchema = z.object({
+  eng: z.string(),
+  rus: z.string(),
+  id: z.string(),
+  correctAnswers: z.number(),
+  wrongAnswers: z.number(),
+});
 
-    await db.authenticate(authenticationToken.get());
-    await db.use("my_ns", "my_db");
-  } else {
-    alert("Ошибка подключения к базе");
-    if (!localStorage.getItem("authentication_token")) {
-      location.replace("/");
-    }
-  }
-} catch (e) {
-  console.log("authenticate", e);
-}
- */
-export interface wordPair {
-  eng: string;
-  rus: string;
-  id: string;
-  correctAnswers: number;
-  wrongAnswers: number;
-}
+export type wordPair = z.infer<typeof wordPairSchema>;
 
-export type newWordPair = Pick<wordPair, "eng" | "rus">;
+export const newWordPairSchema = z.object({ eng: z.string(), rus: z.string() });
+export type newWordPair = z.infer<typeof newWordPairSchema>;
+/* export type newWordPair = Pick<wordPair, "eng" | "rus">; */
 
 export const editPair = async (pair: wordPair) => {
   let res = db.update(pair.id, {
@@ -57,91 +47,12 @@ export const addNewPair = async ({ eng, rus }: newWordPair) => {
     correctAnswers: 0,
     wrongAnswers: 0,
   });
-
-  //TODO переделать без sql
-
-  /*   let word = await db.query(`SELECT * FROM user`, {
-    tb: "person",
-  }); */
-  /* 
-  let word = await db.query(`CREATE wordPair SET eng='${eng}', rus='${rus}'`, {
-    tb: "person",
-  }); 
-  console.log(word);*/
-  /*   await db.create("wordPair", {
-    eng: eng,
-    rus: rus,
-    correctAnswers: "0",
-    wrongAnswers: "0",
-  });
- */
-  /*   await db.query(`UPDATE user:${userName.get()} SET words += ['${word}']`);
-
-  await db.query(` UPDATE ${word} SET owner = user:user:${userName.get()}`); */
-
-  /* await db.create("wordPair", {
-    eng: eng,
-    rus: rus,
-    correctAnswers: "0",
-    wrongAnswers: "0",
-  }); */
 };
 
 export const deletePair = async (id: string) => {
   return db.delete(id);
 };
 
-interface wordPairsLit {
-  items: wordPair[];
-  totalPages: number;
-}
-
 export const getAllWords = async (): Promise<wordPair[]> => {
   return db.select("wordPair");
-  /*   console.log(sel);
-
-  if (import.meta.env.PUBLIC_STORAGE_TYPE === "localStorage") {
-    let results: wordPair[] = [];
-    for (let i in localStorage) {
-      if (localStorage.hasOwnProperty(i)) {
-        if (i.includes("Remember")) {
-          results.push(JSON.parse(localStorage.getItem(i)!));
-        }
-      }
-    }
-    return Promise.resolve(results);
-  } else {
-    try {
-      let items: any;
-      const firstItems: wordPairsLit = await ky
-        .get(`${server_name}api/collections/words/records/?perPage=500`)
-        .json();
-
-      items = firstItems.items;
-
-      if (firstItems.totalPages > 1) {
-        let additionalItems: wordPairsLit[] = await Promise.all(
-          [...Array(firstItems.totalPages - 1)].map(async (e, key) => {
-            return await ky
-              .get(
-                `${server_name}api/collections/words/records/?perPage=500&page=${
-                  key + 2
-                }`
-              )
-              .json();
-          })
-        );
-        additionalItems.forEach((e) => {
-          //console.log(e);
-          items = items.concat(e.items);
-        });
-      }
-
-      console.log("загружено ", items.length, " слов");
-
-      return Promise.resolve(items);
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  } */
 };

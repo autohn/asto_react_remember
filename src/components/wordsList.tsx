@@ -1,8 +1,8 @@
 import type React from "react";
 import { useState, useEffect, useMemo, useContext, createContext } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import type { wordPair, newWordPair } from "../api";
-import { getAllWords, addNewPair, deletePair } from "../api";
+import type { wordPair } from "../api";
+import { getAllWords, addNewPair, deletePair, newWordPairSchema } from "../api";
 import { useStore } from "@nanostores/react";
 import {
   useQuery,
@@ -11,6 +11,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { z } from "zod";
 
 const cacheTime = 1000 * 60 * 60 * 24 * 2;
 const queryClient = new QueryClient({
@@ -51,7 +52,7 @@ export const WordsListC: React.FC = () => {
       //e.forEach((i) => console.log(i));
     },
     onError: (e) => {
-      //location.replace("/login");
+      location.replace("/login");
       console.log("errrorr", e);
     },
     //suspense: true,
@@ -89,7 +90,13 @@ export const WordsListC: React.FC = () => {
 
   const addFromFile = async (selectedFile: File) => {
     if (selectedFile?.type == "application/json") {
-      JSON.parse(await selectedFile.text()).list.forEach((e: newWordPair) =>
+      const rawItem = JSON.parse(await selectedFile.text());
+      const newWordPairListSchema = z.object({
+        list: z.array(newWordPairSchema),
+      });
+      const parsedItem = newWordPairListSchema.parse(rawItem);
+
+      parsedItem.list.forEach((e) =>
         addNewPairFromFileMutation.mutate({ eng: e.eng, rus: e.rus })
       );
     }

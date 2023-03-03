@@ -53,6 +53,7 @@ module.exports = {
         cooDarkMossGreen: "#4C5A3A",
         cooTimberWolf: "#CFCFCE", //текст
         cooFeldgrau: "#455A59", //поля ввода
+        error: "#F87272",
       },
 
       textShadow: {

@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
+    "start": "astro preview",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -15,6 +15,7 @@
     "@astrojs/node": "^5.0.1",
     "@astrojs/react": "^2.0.1",
     "@astrojs/tailwind": "^3.0.0",
+    "@hookform/resolvers": "^2.9.11",
     "@nanostores/persistent": "^0.7.0",
     "@nanostores/react": "^0.4.1",
     "@tanstack/react-query": "^4.23.0",
@@ -28,11 +29,14 @@
     "pocketbase": "^0.10.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.43.3",
     "surreal.js": "^0.4.20",
     "surrealdb.js": "^0.5.0",
-    "tailwindcss": "^3.2.4"
+    "tailwindcss": "^3.2.4",
+    "zod": "^3.20.6"
   },
   "devDependencies": {
+    "@total-typescript/ts-reset": "^0.3.7",
     "@types/node": "^18.11.18",
     "scss": "^0.2.4"
   }
