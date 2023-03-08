@@ -9,6 +9,8 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 
 const cacheTime = 1000 * 60 * 60 * 24 * 2;
 
@@ -19,6 +21,15 @@ const queryClient = new QueryClient({
       //suspense: true,
     },
   },
+});
+
+const localStoragePersister = createSyncStoragePersister({
+  storage: localStorage,
+});
+
+persistQueryClient({
+  queryClient,
+  persister: localStoragePersister,
 });
 
 const Training: React.FC = () => {
@@ -53,7 +64,7 @@ const TrainingC: React.FC = () => {
     queryKey: ["words"],
     queryFn: getAllWords,
     //suspense: true,
-    refetchOnMount: false,
+    //refetchOnMount: false, ломает persistQueryClient
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     onSuccess: (d) => {
@@ -73,8 +84,9 @@ const TrainingC: React.FC = () => {
   const randomize = (ldata: wordPair[]) => {
     //в случае с suspense не требуется проверок, срабатывает только после окончания fetch
     //без suspense вызывается в onSuccess
+    //create function that randomly reshuffle array, but if probability of element be close to start of resulting array depends of the element field value
     setRandomItems(
-      [...ldata!].sort(() => {
+      [...ldata!].sort((a, b) => {
         return 0.5 - Math.random();
       })
     );
