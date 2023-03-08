@@ -12,6 +12,8 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { z } from "zod";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 
 const cacheTime = 1000 * 60 * 60 * 24 * 2;
 const queryClient = new QueryClient({
@@ -21,6 +23,15 @@ const queryClient = new QueryClient({
       //suspense: true,
     },
   },
+});
+
+const localStoragePersister = createSyncStoragePersister({
+  storage: localStorage,
+});
+
+persistQueryClient({
+  queryClient,
+  persister: localStoragePersister,
 });
 
 const WordsList: React.FC = () => {

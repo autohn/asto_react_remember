@@ -104,6 +104,7 @@ const Login: React.FC = () => {
     }
   };
 
+  //chrome autofill field order https://stackoverflow.com/questions/68323955/why-is-chrome-autofilling-account-email-in-wrong-input-element
   return (
     <>
       <div className="flex flex-col items-center text-lg rounded-lg py-8 flex-wrap">
@@ -182,6 +183,14 @@ const Login: React.FC = () => {
               onSubmit={handleRegisterSubmit(registerHandler)}
             >
               <input
+                autoComplete="email"
+                id="email"
+                type="email"
+                placeholder="Email"
+                className="input-sm w-full min-w-xs max-w-xs mt-2 block rounded-lg bg-cooFeldgrau border border-cooBlackOlive focus:border-cooDrabDarkBrown focus:outline-none"
+                {...registerInputForRegister("email")}
+              />
+              <input
                 autoComplete="username"
                 id="username"
                 type="text"
@@ -194,14 +203,6 @@ const Login: React.FC = () => {
                   {registerErrors.username?.message}
                 </div>
               )}
-              <input
-                autoComplete="email"
-                id="email"
-                type="email"
-                placeholder="Email"
-                className="input-sm w-full min-w-xs max-w-xs mt-2 block rounded-lg bg-cooFeldgrau border border-cooBlackOlive focus:border-cooDrabDarkBrown focus:outline-none"
-                {...registerInputForRegister("email")}
-              />
               {registerErrors.email && (
                 <div className="text-error px-4 py-2 my-2 rounded-lg bg-cooDarkBlackOlive text-sm">
                   {registerErrors.email?.message}

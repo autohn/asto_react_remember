@@ -13,7 +13,7 @@ try {
     await db.use("my_ns", "my_db");
   }
 } catch (e) {
-  //console.log("authenticate", e);
+  console.log("authenticate error", e);
 }
 
 export const wordPairSchema = z.object({

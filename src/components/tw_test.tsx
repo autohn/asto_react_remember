@@ -6,6 +6,7 @@ export const tw_test: React.FC = () => {
   const [cls, setCls] = useState<string>("bg-red-500 rounded");
   const [timeas, setTimeas] = useState<any>("");
 
+  //exemple of reactquery persistent store
   /*   const [test, setTest] = useState<any>(1); */
 
   //getAllWords();
@@ -13,10 +14,10 @@ export const tw_test: React.FC = () => {
     "Remember", //TODO в зод проверке форм приводить к нижнему регистру
     JSON.stringify({})
   ); */
-
+  /* 
   for (let i in localStorage) {
-    console.log(i);
-  }
+    console.log("test", i);
+  } */
   //console.log(localStorage.hasOwnProperty("Remember"));
 
   useEffect(() => {
