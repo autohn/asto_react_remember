@@ -49,6 +49,9 @@ const TrainingC: React.FC = () => {
   const [randomPositions, setRandomPositions] = useState<Array<number>>([
     0, 1, 2, 3,
   ]);
+
+  const [sortedItems, setSortedItems] = useState<Array<wordPair>>([]);
+  const [trainingPosition, setTrainingPosition] = useState<number>(0);
   const [correctAnswersCounter, setCorrectAnswersCounter] = useState<number>(0);
   const [wrongAnswersCounter, setWrongAnswersCounter] = useState<number>(0);
   const [answerStyles, setAnswerStyles] = useState<Array<string>>([
@@ -59,7 +62,45 @@ const TrainingC: React.FC = () => {
   ]);
 
   const [uiBloked, setUiBloked] = useState<boolean>(false);
-  const queryClient = useQueryClient();
+  //const queryClient = useQueryClient();
+
+  function fisherYatesShuffleWithOrder<T>(list: T[]): T[] {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j]!, list[i]!];
+    }
+    return list;
+  }
+
+  const randomize = (ldata: wordPair[]) => {
+    ldata.slice(1, ldata.length);
+
+    const shuffled = [...ldata];
+    shuffled.splice(trainingPosition, 1).sort(() => 0.5 - Math.random());
+
+    setRandomItems([
+      ldata[trainingPosition]!,
+      shuffled[0]!,
+      shuffled[1]!,
+      shuffled[2]!,
+    ]);
+
+    setRandomPositions(
+      [0, 1, 2, 3].sort(() => {
+        return 0.5 - Math.random();
+      })
+    );
+
+    setTrainingPosition((p) => {
+      if (p < ldata.length) {
+        return ++p;
+      } else {
+        alert("End of training");
+        location.replace("/");
+        return 0;
+      }
+    });
+  };
   const { data } = useQuery({
     queryKey: ["words"],
     queryFn: getAllWords,
@@ -72,7 +113,13 @@ const TrainingC: React.FC = () => {
         alert("Must be minimum 4 words in the list");
         location.replace("/");
       }
-      randomize(d);
+
+      let sorted = [...d].sort((a, b) => {
+        return a.correctAnswers - b.correctAnswers;
+      });
+      fisherYatesShuffleWithOrder(sorted);
+      setSortedItems(sorted);
+      randomize(sorted);
     },
   });
 
@@ -81,30 +128,14 @@ const TrainingC: React.FC = () => {
     onSuccess: () => {}, //тут не делаем invalidate чтобы не дергать api, по идее не должно быть проблем потому что для обновления количества правильных ответов для слова используем randomitems
   });
 
-  const randomize = (ldata: wordPair[]) => {
-    //в случае с suspense не требуется проверок, срабатывает только после окончания fetch
-    //без suspense вызывается в onSuccess
-    //create function that randomly reshuffle array, but if probability of element be close to start of resulting array depends of the element field value
-    setRandomItems(
-      [...ldata!].sort((a, b) => {
-        return 0.5 - Math.random();
-      })
-    );
-
-    setRandomPositions(
-      //TODO как-то красивее?
-
-      [0, 1, 2, 3].sort(() => {
-        return 0.5 - Math.random();
-      })
-    );
-  };
-
   const checkAnswer = (pos: number) => {
+    /*     console.log(randomItems);
+    console.log(sortedItems);
+    console.log(trainingPosition); */
     if (!uiBloked) {
       setUiBloked(true);
 
-      const setColor = (color: string) => {
+      const setColor = () => {
         setAnswerStyles(
           answerStyles.map((e, key) => {
             return randomPositions[key] == 0 && key !== pos
@@ -124,7 +155,7 @@ const TrainingC: React.FC = () => {
             })
           );
 
-          randomize(data ?? []);
+          randomize(sortedItems);
           setUiBloked(false);
         }, 1500);
       };
@@ -134,39 +165,26 @@ const TrainingC: React.FC = () => {
           return ++c;
         });
 
-        const udatedRandomItems = randomItems.map((e, key) => {
-          return key == randomPositions[pos]
-            ? { ...e, correctAnswers: ++e.correctAnswers }
-            : e;
-        });
+        let updatedItem = {
+          ...randomItems[0]!,
+          correctAnswers: randomItems[0]!.correctAnswers + 1,
+        };
+        editPairMutation.mutate(updatedItem);
 
-        setRandomItems(udatedRandomItems);
-
-        editPairMutation.mutate(
-          udatedRandomItems[randomPositions[pos] as number]!
-        );
-
-        setColor("dg");
+        setColor();
       } else {
+        //TODO неправильный ответ должен записываться в слово про которое спрашивают, а не которое ответил
         setWrongAnswersCounter((c) => {
           return ++c;
         });
 
-        const udatedRandomItems = randomItems.map((e, key) => {
-          return key == randomPositions[pos]
-            ? { ...e, wrongAnswers: ++e.wrongAnswers }
-            : e;
-        });
+        let updatedItem = {
+          ...randomItems[0]!,
+          wrongAnswers: randomItems[0]!.wrongAnswers + 1,
+        };
+        editPairMutation.mutate(updatedItem);
 
-        setRandomItems(udatedRandomItems);
-
-        //TODO неправильно работает когда элементов меньше 4
-
-        editPairMutation.mutate(
-          udatedRandomItems[randomPositions[pos] as number]!
-        );
-
-        setColor("r");
+        setColor();
       }
     }
   };

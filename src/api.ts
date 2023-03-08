@@ -35,6 +35,7 @@ export const editPair = async (pair: wordPair) => {
     user: `user:${userName.get()}`,
     ...pair,
   });
+  console.log("mutate", pair);
   console.log(res);
   return 0;
 };
