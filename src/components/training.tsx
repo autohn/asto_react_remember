@@ -67,16 +67,30 @@ const TrainingC: React.FC = () => {
   function fisherYatesShuffleWithOrder<T>(list: T[]): T[] {
     for (let i = list.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [list[i], list[j]] = [list[j]!, list[i]!];
+      const prob = Math.random() + i / (list.length - 1) / 1.2;
+
+      if (prob > 1) {
+        [list[i], list[j]] = [list[j]!, list[i]!];
+      }
     }
     return list;
   }
 
-  const randomize = (ldata: wordPair[]) => {
-    ldata.slice(1, ldata.length);
+  //fisher Yates Shuffle for array of objects
 
-    const shuffled = [...ldata];
-    shuffled.splice(trainingPosition, 1).sort(() => 0.5 - Math.random());
+  const randomize = (ldata: wordPair[]) => {
+    console.log(trainingPosition);
+    let shuffled = [...ldata];
+    shuffled.splice(trainingPosition, 1); //TODO поменять на фильтр мб
+
+    /*     console.table(ldata);
+    console.table(shuffled); */
+
+    shuffled.sort(() => {
+      return 0.5 - Math.random();
+    });
+
+    //console.table(shuffled);
 
     setRandomItems([
       ldata[trainingPosition]!,
@@ -114,12 +128,13 @@ const TrainingC: React.FC = () => {
         location.replace("/");
       }
 
-      let sorted = [...d].sort((a, b) => {
+      d.sort((a, b) => {
         return a.correctAnswers - b.correctAnswers;
       });
-      fisherYatesShuffleWithOrder(sorted);
-      setSortedItems(sorted);
-      randomize(sorted);
+
+      fisherYatesShuffleWithOrder(d);
+      setSortedItems(d);
+      randomize(d);
     },
   });
 

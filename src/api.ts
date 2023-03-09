@@ -31,12 +31,7 @@ export type newWordPair = z.infer<typeof newWordPairSchema>;
 /* export type newWordPair = Pick<wordPair, "eng" | "rus">; */
 
 export const editPair = async (pair: wordPair) => {
-  let res = db.update(pair.id, {
-    user: `user:${userName.get()}`,
-    ...pair,
-  });
-  console.log("mutate", pair);
-  console.log(res);
+  db.change(pair.id, pair);
   return 0;
 };
 
